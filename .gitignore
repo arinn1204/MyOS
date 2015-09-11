@@ -1,0 +1,28 @@
+
+
+#ignore everything
+*
+#Don't ignore these directories
+!Bootloader
+!Proc
+!Shared
+
+#Don't ignore C, H, or S files
+!*.c
+!*.h
+!*.s
+
+#Don't ignore Makefiles
+!Makefile
+
+#Don't ignore README
+!README.md
+
+#Don't ignore self
+!.gitignore
+
+#Might be redundant, but ignore anything with dev or sample in the name
+*sample*
+*dev*
+
+
