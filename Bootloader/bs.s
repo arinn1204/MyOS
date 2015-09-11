@@ -76,7 +76,7 @@ _getc:
         !----------------------------------------------
 _putc:           
         push   bp
-	    mov    bp,sp
+        mov    bp,sp
 	
         movb   al,4[bp]        ! get the char into aL
         movb   ah,#14          ! aH = 14
@@ -84,7 +84,7 @@ _putc:
         int    0x10            ! call BIOS to display the char
 
         pop    bp
-	    ret
+        ret
         
 _setes:  
         push  bp

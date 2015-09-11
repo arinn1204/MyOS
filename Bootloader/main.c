@@ -1,7 +1,7 @@
 ///@file main.c
 ///@brief this is the main file where the assembly will call upon start
 
-#include "../Shared/io.h" //io functions
+#include "io.h" //io functions
 #include "ext2.h" //struct information for the filesystem
 
 

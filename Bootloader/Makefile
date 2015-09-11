@@ -1,4 +1,4 @@
-OBJECT_FILES := main.o ../Shared/io.o
+OBJECT_FILES := main.o io.o
 CFLAGS := -ansi -D_BOOT_
 LDFLAGS := -d /usr/lib/bcc/libc.a
 OBJECTS := bs.o $(OBJECT_FILES) 
