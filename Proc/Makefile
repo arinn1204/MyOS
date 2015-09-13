@@ -4,8 +4,8 @@ AS := as86
 RM := rm -f
 
 EXECUTABLE := mtx0
-CFLAGS := -ansi -D_PROC_
-PROC_OBJECTS := proc.o io.o
+CFLAGS := -ansi
+PROC_OBJECTS := main.o kernel.o print.o proc.o queue.o wait.o
 OBJECTS := sproc.o $(PROC_OBJECTS)
 LDFLAGS := -d /usr/lib/bcc/libc.a
 
