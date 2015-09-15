@@ -17,10 +17,11 @@ PROC *kfork() {
 	extern int nproc;
 
 	int i;
-	PROC *p = get_proc(&freeList);
+	PROC *p;
+	p = get_proc(&freeList);
 
 	if (!p) {
-		printf("No m ore PROC kfork() failed\n");
+		printf("No more PROC kfork() failed\n");
 		return 0;
 	}
 
@@ -40,20 +41,20 @@ PROC *kfork() {
 }
 /**
 */
-int body(int pid) {
+int body() {
 	extern int rflag;
 	extern PROC *running;
 	extern PROC *freeList;
 	extern PROC *readyQueue;
-
 	char c;	
+	
+	printf("I am in the body!\n");
 	while(1) {
 		if (rflag) {
 			printf("Proc %d: reschedule\n", running->pid);
 			rflag = 0;
 			tswitch();
 		}
-
 		printList("freeList    ", freeList);
 		printQueue("readyQueue      ", readyQueue);
 		printf("Proc %d running: priority=%d parent=%d enter a char:\n"
@@ -87,6 +88,7 @@ int scheduler() {
 	}
 	running = dequeue(&readyQueue);
 	rflag = 0;
+
 }
 
 /**
@@ -116,4 +118,6 @@ int init() {
 	p->status = READY;
 	running = p;
 	nproc = 1;
+
+	printf("Init has now finished.\n");
 }

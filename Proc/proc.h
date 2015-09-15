@@ -1,8 +1,8 @@
-///@file proc.h
-///@brief This contains the process structures and the function prototypes for the functions related to the processes
-
-#ifndef PROC_H
-#define PROC_H
+/**@file proc.h
+*@brief This contains the process structures and the function prototypes for the functions related to the processes
+*/
+#ifndef _PROC_H
+#define _PROC_H
 
 #define NPROC     9        
 #define SSIZE  1024                /* kstack int size */
@@ -30,13 +30,10 @@ struct proc {
 typedef struct proc PROC;
 PROC proc[NPROC], *running, *readyQueue, *freeList, *sleepList;
 int nproc, rflag;
-int procSize = sizeof(proc);
 
 PROC *kfork();
-int body(int pid);
+int body();
 int scheduler();
 int init();
 
 #endif
-
-

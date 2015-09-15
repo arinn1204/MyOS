@@ -1,5 +1,6 @@
-///@file kernel.c
-///@brief something
+/**@file kernel.c
+*@brief something
+*/
 #include "proc.h"
 #include "wait.h"
 #include "queue.h"

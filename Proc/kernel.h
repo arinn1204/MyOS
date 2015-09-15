@@ -1,6 +1,6 @@
-///@file kernel.h
-///@brief
-
+/**@file kernel.h
+*@brief
+*/
 
 #ifndef _KERNEL_H
 #define _KERNEL_H
@@ -17,4 +17,4 @@ int reschedule();
 int chpriority(int pid, int pri);
 int do_chpriority();
 
-#endif //_KERNEL_H
+#endif 

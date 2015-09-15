@@ -45,6 +45,7 @@ int rpu(int x) {
 		rpu(x/BASE); //recursively call self
 		putc(c); //now put the character received on screen
 	}
+	return 0;
 }
 
 
@@ -79,6 +80,7 @@ int printd(int x) {
 			rpu(x); //call rpu like printu does
 		}
 	}
+	return 0;
 }
 /** 	@brief This function is responsible for printing octal numbers, the format will be 0number, so if
 *	the user wants to print (octal) 71217, then it will be displayed as 071217
@@ -94,6 +96,7 @@ int printo(int x) {
 		putc('0'); //print the leading 0
 		rpu(x); //call rpu like normal (see the pattern here)
 	}
+	return 0;
 }
 
 /**
@@ -115,6 +118,8 @@ int printx(int x) {
 		putc('x');
 		rpu(x); //call rpu like normal
 	}
+
+	return 0;
 }
 
 /**
@@ -169,6 +174,8 @@ int printf(char fmt[], ...) {
 
 		cp++; //now continue with the next char
 	}
+
+	return 0;
 }
 
 
@@ -186,6 +193,7 @@ int printList(char *name, PROC *list) {
 		p = p->next;
 	}
 	puts("\n\r");
+	return 0;
 }
 
 /**
@@ -201,4 +209,6 @@ int printQueue(char *name, PROC *queue) {
 		q = q->next;
 	}
 	puts("\n\r");
+
+	return 0;
 }
