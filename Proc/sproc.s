@@ -1,6 +1,6 @@
 !----------------- proc.s file -----------------------------------------------
         .globl _tswitch,_putc,_getc ! EXPORT variables
-        .globl _main,_running,_scheduler,_proc,_procSize   ! IMPORT these
+        .globl _main,_running,_scheduler,_proc,_procSize,_color   ! IMPORT these
 
 start:
         	mov     ax,cs                   ! establish segments 
@@ -17,16 +17,19 @@ dead:	jmp dead                        ! loop if main() ever returns
 
 	
 _tswitch:
-SAVE:	push ax
+SAVE:	
+	push ax
         	push bx
 	push cx
 	push dx
 	push bp
 	push si
 	push di
-	push ds
-	push ss
         	pushf
+
+        	!push ds
+        	!push ss
+
 	mov   bx, _running
 	mov   2[bx], sp
 
@@ -35,9 +38,11 @@ FIND:	call _scheduler
 RESUME:	
 	mov   bx, _running
 	mov   sp, 2[bx]
+	
+	!pop ss
+	!pop ds
+
 	popf
-	pop ds
-	pop ss
 	pop  di
 	pop  si
 	pop  bp
@@ -45,6 +50,9 @@ RESUME:
 	pop  cx
 	pop  bx
 	pop  ax
+	
+	push 4[bx]
+
 	ret
 
 _putc:           
@@ -53,7 +61,7 @@ _putc:
 	
         movb   al,4[bp]        ! get the char into aL
         movb   ah,#14          ! aH = 14
-        movb   bl,#0x0D        ! bL = cyan color 
+        mov     bx,_color
         int    0x10            ! call BIOS to display the char
 
         pop    bp

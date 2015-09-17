@@ -18,8 +18,8 @@ int main(void) {
 	INODE *ip;
 	//initialize name
 	name[0] = "boot";
-	name[1] = "mtx"; 
-	puts("boot mtx:\n\r");
+	name[1] = "mtx0"; 
+	puts("boot mtx0:\n\r");
 	//putc('/'); puts(name[0]); putc('/'); puts(name[1]); //print boot location
 
 	getBlock(2, buf); //check for return value (no error checks currently)

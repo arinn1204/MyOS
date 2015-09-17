@@ -192,7 +192,7 @@ int printList(char *name, PROC *list) {
 		printf("%d ->", p->pid);
 		p = p->next;
 	}
-	puts("\n\r");
+	puts("NULL\n\r");
 	return 0;
 }
 
@@ -208,7 +208,7 @@ int printQueue(char *name, PROC *queue) {
 		printf("%d ->", q->pid);
 		q = q->next;
 	}
-	puts("\n\r");
+	puts("NULL\n\r");
 
 	return 0;
 }

@@ -14,6 +14,7 @@ PROC *kfork() {
 	extern PROC *running;
 	extern PROC *readyQueue;
 	extern PROC *freeList;
+	extern PROC proc[NPROC];
 	extern int nproc;
 
 	int i;
@@ -29,38 +30,46 @@ PROC *kfork() {
 	p->status = READY;
 	p->priority = 1;
 	p->ppid = running->pid;
+	p->parent = &proc[running->pid];
 
-	for(i = 1; i < NPROC; i++) {
+	for(i = 1; i < NPROC + 1; i++) {
 		p->kstack[SSIZE - i] = 0;
 	}
 
-	p->kstack[SSIZE - 1] = (int)body;
-	p->ksp = &p->kstack[SSIZE - 9];
+	p->kstack[SSIZE - 3] = (int)body;
+	p->kstack[SSIZE - 1] = p->pid;
+	p->ksp = &p->kstack[SSIZE - NPROC];
+
 	enqueue(&readyQueue, p);
 	return p;
 }
 /**
 */
-int body() {
+int body(int pid) {
 	extern int rflag;
-	extern PROC *running;
 	extern PROC *freeList;
 	extern PROC *readyQueue;
+	extern PROC proc[NPROC];
+	extern int color;
+
+
 	char c;	
-	
-	printf("I am in the body!\n");
 	while(1) {
+		color = (pid % 6) + 0x0A;
 		if (rflag) {
-			printf("Proc %d: reschedule\n", running->pid);
+			printf("Proc %d: reschedule\n", pid);
 			rflag = 0;
 			tswitch();
 		}
-		printList("freeList    ", freeList);
-		printQueue("readyQueue      ", readyQueue);
+		printList("freeList\t", freeList);
+		printQueue("readyQueue\t", readyQueue);
+		printf("The color should be... %x\n", color);
+		//printList("SleepList\t", sleepList);
+
 		printf("Proc %d running: priority=%d parent=%d enter a char:\n"
 			"[s|f|t|c|z|a|p|w|q]\n",
-			running->pid, running->priority, running->parent->pid);
-		c = getc(); printf("%c\n", c);
+			pid, proc[pid].priority, proc[pid].ppid);
+		c = getc(); putc(c); puts("\n\r");
 		switch(c) {
 			case 's':	do_tswitch(); 		break;
 			case 'f':	do_kfork(); 		break;

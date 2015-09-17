@@ -77,16 +77,20 @@ int do_continue() {
 */
 int do_sleep() {
 	extern PROC *running;
-
 	ksleep(running);
 }
 
 /**
 */
 int do_wakeup() {
-	extern PROC *running;
+	extern PROC proc[NPROC];
+	int pid;
+	printf("Which proc do you want to wakeup? ");
+	pid = getI();
+	puts("\n\r");
+	printf("Waking P%d\n", pid);
 
-	kwakeup(running->parent);
+	kwakeup(&proc[pid]);
 }
 
 /**
@@ -152,7 +156,9 @@ int chpriority(int pid, int pri) {
 int do_chpriority() {
 	int pid, pri;
 	printf("input pid: "); 			pid = getI();
+	puts("\n\r");
 	printf("input new priority: "); 	pri = getI();
+	puts("\n\r");
 
 	if (pri  < 1) pri = 1;
 	return chpriority(pid, pri);

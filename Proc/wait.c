@@ -12,8 +12,10 @@
 */
 int ksleep(int event) {
 	extern PROC *running;
+
 	running->event = event;
 	running->status = SLEEP;
+
 	tswitch();
 }
 
@@ -78,6 +80,7 @@ int kexit(int exitValue) {
 	running->status = ZOMBIE;
 	//wake up parent and P1 if needed
 	kwakeup(running->parent);
+	nproc--;
 	if (wakeupP1) {
 		kwakeup(&proc[1]);
 	}

@@ -16,7 +16,7 @@
 
 struct proc {
             struct proc *next;   
-            int  ksp;               /* saved sp; offset = 2 */
+            int  *ksp;               /* saved sp; offset = 2 */
             int  pid;
             int  status;            /* READY|DEAD, etc */
             int  ppid;
@@ -30,6 +30,7 @@ struct proc {
 typedef struct proc PROC;
 PROC proc[NPROC], *running, *readyQueue, *freeList, *sleepList;
 int nproc, rflag;
+
 
 PROC *kfork();
 int body();
