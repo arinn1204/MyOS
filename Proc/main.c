@@ -2,7 +2,8 @@
 #include "wait.h"
 #include "print.h"
 
-int procSize = sizeof(proc);
+
+int procSize = sizeof( PROC );
 int color = 0x0A;
 
 int main() {

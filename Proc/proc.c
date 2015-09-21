@@ -8,6 +8,9 @@
 #include "kernel.h"
 #include "print.h"
 
+#define REG_COUNT 10
+#define ADDR_COUNT (REG_COUNT + 3)
+
 /**
 */
 PROC *kfork() {
@@ -15,7 +18,6 @@ PROC *kfork() {
 	extern PROC *readyQueue;
 	extern PROC *freeList;
 	extern PROC proc[NPROC];
-	extern int nproc;
 
 	int i;
 	PROC *p;
@@ -32,13 +34,13 @@ PROC *kfork() {
 	p->ppid = running->pid;
 	p->parent = &proc[running->pid];
 
-	for(i = 1; i < NPROC + 1; i++) {
+	for(i = 1; i <= ADDR_COUNT; i++) {
 		p->kstack[SSIZE - i] = 0;
 	}
 
 	p->kstack[SSIZE - 3] = (int)body;
 	p->kstack[SSIZE - 1] = p->pid;
-	p->ksp = &p->kstack[SSIZE - NPROC];
+	p->ksp = &p->kstack[SSIZE - ADDR_COUNT];
 
 	enqueue(&readyQueue, p);
 	return p;

@@ -78,9 +78,9 @@ int kexit(int exitValue) {
 	//record exit code and become ZOMBIE
 	running->exitCode = exitValue;
 	running->status = ZOMBIE;
+	nproc--;
 	//wake up parent and P1 if needed
 	kwakeup(running->parent);
-	nproc--;
 	if (wakeupP1) {
 		kwakeup(&proc[1]);
 	}

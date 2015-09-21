@@ -18,18 +18,19 @@ dead:	jmp dead                        ! loop if main() ever returns
 	
 _tswitch:
 SAVE:	
+
 	push ax
-        	push bx
+    push bx
 	push cx
 	push dx
 	push bp
 	push si
 	push di
-        	pushf
+    pushf
+	push ds
+    push ss
 
-        	!push ds
-        	!push ss
-
+    
 	mov   bx, _running
 	mov   2[bx], sp
 
@@ -38,9 +39,8 @@ FIND:	call _scheduler
 RESUME:	
 	mov   bx, _running
 	mov   sp, 2[bx]
-	
-	!pop ss
-	!pop ds
+	pop ss
+	pop ds
 
 	popf
 	pop  di
@@ -50,8 +50,7 @@ RESUME:
 	pop  cx
 	pop  bx
 	pop  ax
-	
-	push 4[bx]
+
 
 	ret
 
