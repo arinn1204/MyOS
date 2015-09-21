@@ -17,6 +17,7 @@
 struct proc {
             struct proc *next;   
             int  *ksp;               /* saved sp; offset = 2 */
+            int uss, usp;           /* offset = 4, 6 respectively */
             int  pid;
             int  status;            /* READY|DEAD, etc */
             int  ppid;
@@ -24,6 +25,7 @@ struct proc {
             int priority;
             int event;
             int exitCode;
+            char name[32];
             int  kstack[SSIZE];     // kmode stack of task
 };
 

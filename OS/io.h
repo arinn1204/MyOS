@@ -5,6 +5,6 @@
 int getI();
 int printList(char *name, PROC *list);
 int printQueue(char *name, PROC *queue);
-int printf(char fmt[], ...);
+int kprintf(char fmt[], ...);
 
 #endif

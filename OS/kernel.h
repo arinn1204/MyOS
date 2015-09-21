@@ -5,6 +5,9 @@
 #ifndef _KERNEL_H
 #define _KERNEL_H
 
+
+int do_ps();
+int chname(char *);
 int do_tswitch();
 int do_kfork();
 int do_exit();

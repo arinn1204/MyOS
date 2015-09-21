@@ -11,8 +11,8 @@ char *table = "0123456789ABCDEF";
 int getI() {
 	int ret = 0;
 	char c;
-	while( ( c = getc() ) != '\r' )  {
-		putc(c);
+	while( ( c = kgetc() ) != '\r' )  {
+		kputc(c);
 		if (c < '0')	break;
 		else if (c > '9') break;
 		ret *= 10;
@@ -25,9 +25,9 @@ int getI() {
 ///@brief This function will make a call to the bios to  print s to the screen
 ///@param STR this will contain the string that is wanted to print
 ///@returns This will return 0 upon success
-int puts(char *str) {
+int kputs(char *str) {
 	while (*str) {//loop through the string
-		putc(*str); 
+		kputc(*str); 
 		str++; //else just print the character to the screen
 	}
 	return 0; //return 0 to signify successful completion
@@ -43,7 +43,7 @@ int rpu(int x) {
 	if(x) { //if x is greater than 0
 		c = table[x % BASE]; //assign the char to whatever it should be based on the global table
 		rpu(x/BASE); //recursively call self
-		putc(c); //now put the character received on screen
+		kputc(c); //now put the character received on screen
 	}
 	return 0;
 }
@@ -55,7 +55,7 @@ int rpu(int x) {
 int printu(int x) {
 	BASE = 10; //assign the base a value
 	if ( ! x ) {
-		putc('0'); // if x < 0 then put 0 to screen
+		kputc('0'); // if x < 0 then put 0 to screen
 	}
 	else { //otherwise call rpu
 		rpu(x);
@@ -69,11 +69,11 @@ int printu(int x) {
 int printd(int x) {
 	BASE = 10;
 	if ( ! x ) {
-		putc('0'); //print 0 if nothing passed in
+		kputc('0'); //print 0 if nothing passed in
 	}
 	else {
 		if (x < 0) {
-			putc('-'); //print - if less than 0
+			kputc('-'); //print - if less than 0
 			rpu(x*-1); //call rpu but make the number positive
 		}
 		else {
@@ -90,10 +90,10 @@ int printd(int x) {
 int printo(int x) {
 	BASE = 8; //set the base to 8
 	if ( ! x ) {
-		putc('0'); //print 0 if 0 is passed in
+		kputc('0'); //print 0 if 0 is passed in
 	}
 	else {
-		putc('0'); //print the leading 0
+		kputc('0'); //print the leading 0
 		rpu(x); //call rpu like normal (see the pattern here)
 	}
 	return 0;
@@ -108,14 +108,14 @@ int printx(int x) {
 	BASE = 16;
 	if ( ! x ) {
 		//print 0x0 instead of just 0
-		putc('0');
-		putc('x');
-		putc('0');
+		kputc('0');
+		kputc('x');
+		kputc('0');
 	}	
 	else {
 		//print 0x
-		putc('0');
-		putc('x');
+		kputc('0');
+		kputc('x');
 		rpu(x); //call rpu like normal
 	}
 
@@ -130,7 +130,7 @@ int printx(int x) {
 * these parameters are to be combined with a % in the string passed in like a normal string
 * for example: ("I am %d years old and my name is %s", 21, "Aaron") Will print to: "I am 21 years old and my name is Aaron"
 */
-int printf(char fmt[], ...) {
+int kprintf(char fmt[], ...) {
 	char *cp=fmt; //set pointer to the string being passed in
 	int *ip = (int *)&fmt + 1; //set pointer to the next item on the stack
 
@@ -139,10 +139,10 @@ int printf(char fmt[], ...) {
 			cp++; //inc the char pointer
 			switch(*cp) { //switch statement to call the above functions
 				case 'c':
-					putc( (char)*ip );
+					kputc( (char)*ip );
 					break;
 				case 's':
-					puts( (char *)*ip);
+					kputs( (char *)*ip);
 					break;
 				case 'd':
 					printd( (int)*ip );
@@ -157,19 +157,19 @@ int printf(char fmt[], ...) {
 					printx( (int)*ip );
 					break;
 				default:
-					putc( *cp ); //default print the option attempted to pass in
-					puts(" is not a supported case at this time.\n\r"); //print error string
+					kputc( *cp ); //default print the option attempted to pass in
+					kputs(" is not a supported case at this time.\n\r"); //print error string
 					break;
 
 			}
 			ip++; //increment the pointer to the options on the stack
 		}
 		else if ( *cp == '\n' ) { //if cp is \n then print \n\r
-			putc('\n');
-			putc('\r');
+			kputc('\n');
+			kputc('\r');
 		}
 		else { //else it has to be just a character, so print it
-			putc(*cp);
+			kputc(*cp);
 		}
 
 		cp++; //now continue with the next char
@@ -185,14 +185,14 @@ int printf(char fmt[], ...) {
 int printList(char *name, PROC *list) {
 	PROC *p = list;
 
-	puts(name);
-	puts("= ");
+	kprintf("%s", name);
+	kprintf("= ");
 
 	while( p ) {
-		printf("%d ->", p->pid);
+		kprintf("%d ->", p->pid);
 		p = p->next;
 	}
-	puts("NULL\n\r");
+	kprintf("NULL\n\r");
 	return 0;
 }
 
@@ -201,14 +201,14 @@ int printList(char *name, PROC *list) {
 int printQueue(char *name, PROC *queue) {
 	PROC *q = queue;
 
-	puts(name);
-	puts("= ");
+	kprintf("%s", name);
+	kprintf("= ");
 
 	while( q ) {
-		printf("%d ->", q->pid);
+		kprintf("%d ->", q->pid);
 		q = q->next;
 	}
-	puts("NULL\n\r");
+	kprintf("NULL\n\r");
 
 	return 0;
 }

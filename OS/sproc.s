@@ -1,17 +1,27 @@
 !----------------- proc.s file -----------------------------------------------
-        .globl _tswitch,_putc,_getc ! EXPORT variables
+        .globl _tswitch,_kputc,_kgetc ! EXPORT variables
         .globl _main,_running,_scheduler,_proc,_procSize,_color   ! IMPORT these
+        !----- USER MODE -------------
+        .globl _int80h, _goUmode ! EXPORT functions
+        .globl _kcinth ! IMPORT functions
+
+
+        MTXSEG = 0x1000
+        USS = 4
+        USP = 6
+        jmpi start, MTXSEG
+
 
 start:
-        	mov     ax,cs                   ! establish segments 
-        	mov     ds,ax                   ! Let DS,SS,ES = CS=0x1000.
-        	mov     ss,ax                   
-        	mov     es,ax
+	mov     ax,cs                   ! establish segments 
+	mov     ds,ax                   ! Let DS,SS,ES = CS=0x1000.
+	mov     ss,ax                   
+	mov     es,ax
 	
 	mov     sp,#_proc               ! sp -> proc[0]
 	add     sp,_procSize            ! sp -> proc[0]s HIGH END
-	
-        	call _main                      ! call main() in C
+
+	call _main                      ! call main() in C
 
 dead:	jmp dead                        ! loop if main() ever returns
 
@@ -27,10 +37,7 @@ SAVE:
 	push si
 	push di
     pushf
-	push ds
-    push ss
 
-    
 	mov   bx, _running
 	mov   2[bx], sp
 
@@ -39,8 +46,6 @@ FIND:	call _scheduler
 RESUME:	
 	mov   bx, _running
 	mov   sp, 2[bx]
-	pop ss
-	pop ds
 
 	popf
 	pop  di
@@ -54,7 +59,7 @@ RESUME:
 
 	ret
 
-_putc:           
+_kputc:           
         push   bp
         mov    bp,sp
 	
@@ -66,8 +71,57 @@ _putc:
         pop    bp
         ret
 
-_getc:
+_kgetc:
         xorb   ah,ah           ! clear ah
         int    0x16            ! call BIOS to get a char in AX
         ret         
+
+
+
+! these are for KUMODE
+
+
+_int80h:
+	push bp
+	push si
+	push di
+	push es
+	push ds
+	push cs
+
+
+	pop ds
+
+	mov si, _running
+	mov USS[si], ss
+	mov USP[si], sp
+
+	mov di, ds
+	mov es, di
+	mov ss, di
+
+
+	mov sp,_running
+	add sp,_procSize
+
+	call _kcinth
+	jmp _goUmode
+
+
+
+_goUmode:
+	cli
+	mov bx,_running
+	mov cx,USS[bx]
+	mov ss,cx
+	mov sp,USP[bx]
+
+	pop ds
+	pop es
+	pop di
+	pop si
+	pop bp
+
+	iret
+
 
