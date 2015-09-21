@@ -1,6 +1,6 @@
 #include "proc.h"
 #include "wait.h"
-#include "print.h"
+#include "io.h"
 
 
 int procSize = sizeof( PROC );

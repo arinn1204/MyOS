@@ -1,8 +1,10 @@
 ROOTDIR := /home/aaron/MyOS
 IMAGEDIR := $(ROOTDIR)/Image
 IMAGE := $(IMAGEDIR)/mtximage
+IMAGE_CONTENTS := $(IMAGEDIR)/Contents
 BOOT := $(ROOTDIR)/Bootloader
-OS := $(ROOTDIR)/Proc
+OS := $(ROOTDIR)/OS
+
 
 
 all:
@@ -15,9 +17,9 @@ check: all
 
 run: check
 	dd if=$(BOOT)/boot of=$(IMAGE) bs=1024 count=1 conv=notrunc
-	@sudo mount -o loop $(IMAGE) $(ROOTDIR)/OS
-	sudo cp $(OS)/mtx0 $(ROOTDIR)/OS/boot/mtx0
-	@sudo umount $(ROOTDIR)/OS
+	@sudo mount -o loop $(IMAGE) $(IMAGE_CONTENTS)
+	sudo cp $(OS)/mtx0 $(IMAGE_CONTENTS)/boot/mtx0
+	@sudo umount $(IMAGE_CONTENTS)
 	qemu -fda $(IMAGE) -no-fd-bootchk
 
 clean:

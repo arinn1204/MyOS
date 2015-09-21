@@ -1,5 +1,5 @@
 #include "proc.h"
-#include "print.h"
+#include "io.h"
 
 int BASE = 10;
 

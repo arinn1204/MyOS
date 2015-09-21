@@ -4,8 +4,7 @@
 *
 #Don't ignore these directories
 !Bootloader
-!Proc
-!Shared
+!OS
 
 #Don't ignore C, H, or S files
 !*.c

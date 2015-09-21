@@ -4,7 +4,7 @@
 #include "proc.h"
 #include "wait.h"
 #include "queue.h"
-#include "print.h"
+#include "io.h"
 
 /**
 */

@@ -6,7 +6,7 @@
 #include "proc.h"
 #include "queue.h"
 #include "kernel.h"
-#include "print.h"
+#include "io.h"
 
 #define REG_COUNT 10
 #define ADDR_COUNT (REG_COUNT + 3)
