@@ -29,6 +29,13 @@ int chname(char *newname) {
 
 }
 
+/**
+*/
+int set_vec(unsigned short vector, unsigned short handler) {
+	put_word(handler, 0, vector << 2);
+	put_word(0x1000, 0, (vector << 2) + 2);
+}
+
 
 /**
 */
@@ -41,7 +48,7 @@ int do_tswitch() {
 int do_kfork() {
 	extern PROC *running;
 
-	PROC *p = kfork();
+	PROC *p = kfork(0);
 	if (p == 0) {
 		kprintf("fork() failed!\n");
 		return -1;

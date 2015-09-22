@@ -34,7 +34,7 @@ PROC proc[NPROC], *running, *readyQueue, *freeList, *sleepList;
 int nproc, rflag;
 
 
-PROC *kfork();
+PROC *kfork(char *filename);
 int body();
 int scheduler();
 int init();

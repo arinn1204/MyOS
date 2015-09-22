@@ -1,3 +1,5 @@
+#include <string.h>
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned long u32;
@@ -10,10 +12,8 @@ typedef struct ext2_group_desc GD;
 typedef struct ext2_inode INODE;
 typedef struct ext2_dir_entry_2 DIR;
 
+#define NULL 0
 #define BlockSize 1024
-
-
-INODE *ip;
 
 int put_word(u16 word, u16 segment, u16 offset) {
 	u16 ds = getds();
@@ -42,7 +42,7 @@ u16 getBlock(u16 blk, char *buf) {
 	return 0; //signify succesful completion
 }
 
-int search(char *name) {
+int search(char *name, INODE *ip) {
 	char buf2[BlockSize];
 	int index; char c; //index variable and temp char variable
 	DIR *dp; //initialize a directory pointer
@@ -65,28 +65,39 @@ int search(char *name) {
 				dp = (char *)dp + dp->rec_len;
 			} // end of while loop looking for name in current block
 		} // end of if iblock
-
+		return -1;
 	} // end of index for loop
 }
 
 int load(char *filename, int segment) {
-	char *temp, buf[32];
-	int ret;
-	header *head; 
+	char *temp, buf1[BlockSize];
+	int iblk, ino;
+	GD *gp;
+	INODE *ip;
 
-	temp = strtok(filename + 1, "/");
-	ret = search(temp);
-	if (ret == 0) {kprintf("Error not found: /%s\n\r", temp); return 0;}
-	temp = strtok(temp, 0);
-	ret = search(temp);
-	if (ret == 0) {kprintf("Error not found %s\n\r", temp); return 0;}
+	if (filename == 0) {
+		kprintf("No file entered!\n\r");
+		return 0;
+	}
+	getBlock(2, buf1);
+	gp = (GD *)buf1;
+	iblk = gp->bg_inode_table;
+	kprintf("Begin block: %d\n\r", iblk);
 
-	getBlock(0, buf);
-	head = (header *)buf;
+	getBlock(iblk, buf1);
+	ip = (INODE *)buf1 + 1;
+	kprintf("Path: %s\n\r", filename);
 
+	for (temp = strtok(filename, "/"); temp; temp = strtok(0, "/") ) {
+		kprintf("%s\n\r", temp); kgetc();
+		ino = search(temp, ip);
+		if (ino < 0) return 0;
+		getBlock( INUMBER(ino, iblk), buf1);
+		ip = (INODE *)buf1 + OFFSET(ino);
+	}
 
+	kprintf("Found it! Inode is at %d\n\r", ino);
+	kgetc();
 
 	return 1;
-
-
 }

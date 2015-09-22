@@ -5,7 +5,7 @@
 #ifndef _KERNEL_H
 #define _KERNEL_H
 
-
+int set_vec(unsigned short vector, unsigned short handler);
 int do_ps();
 int chname(char *);
 int do_tswitch();

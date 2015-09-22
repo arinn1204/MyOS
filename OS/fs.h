@@ -1,6 +1,9 @@
 #ifndef _FS_H
 #define _FS_H
 
+#define INUMBER(y,z) (y - 1) / 8 + z
+#define OFFSET(y) (y - 1) % 8
+
 struct header {
 	u32 ID_space; // 0x4100301:combined I&D|0x4200301:separate I&D
 	u32 magic_number; // 0x00000020

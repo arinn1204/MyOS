@@ -1,6 +1,9 @@
 #include "proc.h"
 #include "wait.h"
 #include "io.h"
+#include "int.h"
+
+int int80h();
 
 
 int procSize = sizeof( PROC );
@@ -14,22 +17,19 @@ int main() {
 	kprintf("\n\n");
 	kprintf("MTX Starting in main\n\r");
 	init();
+	kprintf("Init complete\n\r");
+	set_vec(80, int80h);
 	
-	//printf("Forking new process\n");
-	do_kfork();
-
-	do_ps();
-
-	//printf("Fork has completed\n");
+	kgetc();
+	
+	kfork("/bin/u1");
 
 	kprintf("P%d is now going to enter infinite loop!\n", running->pid);
 	while(1) {
-		kgetc();
 		kprintf("P%d is now waiting for something in the queue...\n", running->pid);
 		while( ! readyQueue);
 		kprintf("P%d is now going to switch!\n", running->pid);
 		do_tswitch();
 		kprintf("p%d is now running\n", running->pid);
-		kgetc();
 	}
 }
