@@ -38,6 +38,8 @@ PROC *kfork() {
 		p->kstack[SSIZE - i] = 0;
 	}
 
+	p->kstack[SSIZE - ADDR_COUNT] = 0x1000;
+	p->kstack[SSIZE - (ADDR_COUNT - 1)] = 0x1000;
 	p->kstack[SSIZE - 3] = (int)body;
 	p->kstack[SSIZE - 1] = p->pid;
 	p->ksp = &p->kstack[SSIZE - ADDR_COUNT];
