@@ -20,6 +20,7 @@ PROC *kfork(char *filename) {
 	extern PROC proc[NPROC];
 
 	int i;
+	int segment, segsize;
 	PROC *p;
 	p = get_proc(&freeList);
 
@@ -28,7 +29,7 @@ PROC *kfork(char *filename) {
 		return 0;
 	}
 
-
+	
 	p->status = READY;
 	p->priority = 1;
 	p->ppid = running->pid;
@@ -42,6 +43,31 @@ PROC *kfork(char *filename) {
 	p->ksp = &p->kstack[SSIZE - ADDR_COUNT];
 
 	enqueue(&readyQueue, p);
+
+
+
+	if(filename) {
+		segment = (p->pid + 1) * 0x1000;
+		load(filename, segment);
+		segsize = 0x800;
+
+		for(i = 1; i < 9; i++)
+			put_word(0, segment, (-2 * i - segsize) );
+
+		put_word(0x0200, segment, -2*1-segsize);		//flag
+		put_word(segment, segment, -2*2-segsize);		//uCS
+		put_word(segment, segment, -2*7-segsize);		//uES
+		put_word(segment, segment, -2*8-segsize);		//uDS
+
+		p->usp = -2*8-segsize;
+		p->uss = segment;
+
+	}
+
+
+
+
+
 	return p;
 }
 /**

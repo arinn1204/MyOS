@@ -5,7 +5,7 @@ RM := rm -f
 
 EXECUTABLE := mtx0
 CFLAGS := -ansi
-PROC_OBJECTS := main.o kernel.o io.o proc.o queue.o wait.o
+PROC_OBJECTS := main.o fs.o kernel.o int.o io.o proc.o queue.o wait.o
 OBJECTS := sproc.o $(PROC_OBJECTS)
 LDFLAGS := -d /usr/lib/bcc/libc.a
 

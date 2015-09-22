@@ -5,7 +5,6 @@ int BASE = 10;
 
 char *table = "0123456789ABCDEF";
 
-
 /**
 */
 int getI() {

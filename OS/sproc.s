@@ -1,5 +1,5 @@
 !----------------- proc.s file -----------------------------------------------
-        .globl _tswitch,_kputc,_kgetc ! EXPORT variables
+        .globl _tswitch,_kputc,_kgetc,_getds,_setds,_readfd ! EXPORT variables
         .globl _main,_running,_scheduler,_proc,_procSize,_color   ! IMPORT these
         !----- USER MODE -------------
         .globl _int80h, _goUmode ! EXPORT functions
@@ -58,6 +58,21 @@ RESUME:
 
 
 	ret
+
+_getds:
+	xor ax,ax ! clear out ax
+	mov ax,ds ! move ds into ax
+	ret 	  ! return hopefully with getds
+
+_setds:
+	push  bp
+    mov   bp,sp
+
+    mov   ax,4[bp]        
+    mov   ds,ax
+
+    pop   bp
+    ret
 
 _kputc:           
         push   bp
@@ -125,3 +140,20 @@ _goUmode:
 	iret
 
 
+_readfd:                             
+        push  bp
+      	mov   bp,sp            ! bp = stack frame pointer
+
+        movb  dl, #0x00        ! drive 0=FD0
+        movb  dh, 6[bp]        ! head
+        movb  cl, 8[bp]        ! sector
+        incb  cl               ! BIOS count sector from 1
+        movb  ch, 4[bp]        ! cyl
+        mov   bx, 10[bp]       ! BX=buf ==> memory addr=(ES,BX)
+        mov   ax, #0x0202      ! READ 2 sectors to (EX, BX)
+
+        int  0x13              ! call BIOS to read the block 
+        !jb   _error            ! to error if CarryBit is on [read failed] 
+
+        pop  bp                
+	    ret
