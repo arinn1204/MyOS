@@ -1,5 +1,3 @@
-#include <string.h>
-
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned long u32;
@@ -32,6 +30,48 @@ u16 get_word(u16 segment, u16 offset) {
 	return word;
 
 }
+
+
+char *strtok(char *str, char delim) {
+	static char *save;
+	char *tmp = str;
+	int i;
+
+	//kprintf("String: %s Delim: %c\n\r", (str == 0) ? save : str, delim); kgetc();
+
+	if (str == 0) {
+		str = save;
+		if (save == 0) return 0;
+
+	}
+	else {
+		for(i = 0; i < strlen(str); i++ ) {
+			if ( *(str + i) == delim) {
+				//kprintf("Delim at location: %d\n\r", i);
+				str += i;
+				break;
+			}
+		}
+	}
+
+	for(i = 1; i < strlen(str); i++) {
+		if (*(tmp + i) == delim) {
+			tmp += i;
+			//kprintf("New tmp string: %s\n\r", tmp); kgetc();
+			break;
+		}
+	}
+	if(tmp) {
+		*tmp = '\0';
+		save = tmp + 1;
+		//kprintf("Save string: %s Return string: %s\n\r", save, str);
+	}
+	else {
+		save = 0;
+	}
+	return (*str == delim) ? str + 1 : str;
+}
+
 
 ///@brief This function is responsible for receiving the block information from the disk
 ///@param blk This should be an integer (u16) that denotes the block number that is being received
@@ -70,7 +110,7 @@ int search(char *name, INODE *ip) {
 }
 
 int load(char *filename, int segment) {
-	char *temp, buf1[BlockSize];
+	char *temp, *save, buf1[BlockSize];
 	int iblk, ino;
 	GD *gp;
 	INODE *ip;
@@ -88,7 +128,7 @@ int load(char *filename, int segment) {
 	ip = (INODE *)buf1 + 1;
 	kprintf("Path: %s\n\r", filename);
 
-	for (temp = strtok(filename, "/"); temp; temp = strtok(0, "/") ) {
+	for (temp = strtok(filename, '/'); temp; temp = strtok(0, '/') ) {
 		kprintf("%s\n\r", temp); kgetc();
 		ino = search(temp, ip);
 		if (ino < 0) return 0;
