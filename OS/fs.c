@@ -41,6 +41,7 @@ char *strtok(char *str, char delim) {
 
 	if (str == 0) {
 		str = save;
+		tmp = save;
 		if (save == 0) return 0;
 
 	}
@@ -53,15 +54,20 @@ char *strtok(char *str, char delim) {
 			}
 		}
 	}
-
-	for(i = 1; i < strlen(str); i++) {
-		if (*(tmp + i) == delim) {
+	//kprintf("Temp string: %s Return str: %s\n\r", tmp, str); kgetc();
+	for(i = 1; i <= strlen(str); i++) {
+		if ( *(tmp + i) == 0) {
+			tmp = 0;
+			//kprintf("Null! Return string: %s\n\r", str); kgetc();
+		}
+		else if (*(tmp + i) == delim) {
 			tmp += i;
 			//kprintf("New tmp string: %s\n\r", tmp); kgetc();
 			break;
 		}
 	}
 	if(tmp) {
+		//kprintf("Temp string: %s\n\r", tmp); kgetc();
 		*tmp = '\0';
 		save = tmp + 1;
 		//kprintf("Save string: %s Return string: %s\n\r", save, str);
@@ -129,7 +135,7 @@ int load(char *filename, int segment) {
 	kprintf("Path: %s\n\r", filename);
 
 	for (temp = strtok(filename, '/'); temp; temp = strtok(0, '/') ) {
-		kprintf("%s\n\r", temp); kgetc();
+		//kprintf("%s\n\r", temp); kgetc();
 		ino = search(temp, ip);
 		if (ino < 0) return 0;
 		getBlock( INUMBER(ino, iblk), buf1);
