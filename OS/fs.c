@@ -159,13 +159,21 @@ int load(char *filename, int segment) {
 	//i is the index for the loaded file data
 	//first 32 bytes are for header, so we are skipping that
 	printf("\n\rTotal Size: %d\n\rBlock Size: %d\n\rHeader Size: %d\n\r", tsize, BlockSize, hsize);
-	for (i = hsize; i < tsize; 	i++,
+	/*for (i = hsize; i < tsize; 	i++,
 								BufIndex = i % BlockSize,
 								block = i / BlockSize,
 								offset = i - hsize,
-								(BufIndex) ? i = i : getBlock( ip->i_block[block], buf ) )
-		put_byte( (i < tsize - bsize) ? buf[BufIndex] : 0, segment, offset );
-
+								(BufIndex) ? i = i : getBlock( ip->i_block[block], buf ),
+								put_byte( (i < tsize - bsize) ? buf[BufIndex] : 0, segment, offset )
+ 		);*/
+	for(i = hsize; i < tsize; i++) {
+		BufIndex = i % BlockSize;
+		block = i / BlockSize;
+		offset = i - hsize;
+		if ( ! BufIndex ) getBlock(ip->i_block[block], buf);
+		put_byte( (i < tsize - bsize) ? buf[BufIndex] : 0, segment, offset);
+	}
+		
 
 
 	printf("Done\n\r");
