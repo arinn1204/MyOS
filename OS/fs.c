@@ -12,11 +12,9 @@ typedef struct ext2_dir_entry_2 DIR;
 
 #define NULL 0
 #define BlockSize 1024
-
-int iblk = 0;
-char buf[BlockSize] = 0, buf1[BlockSize] = 0;
-
-	/*	 _____________________________
+char buf[BlockSize];
+	/*			LITTLE ENDIAN
+	*	 _____________________________
 	*	|			   |			  |
 	*	|	LOW		   |	HIGH	  |
 	*	|	BYTE	   |	BYTE	  |
@@ -58,13 +56,15 @@ u16 get_word(u16 segment, u16 offset) {
 	u16 word;
 	word = get_byte(segment, offset);
 	word += (get_byte(segment, offset + 1) << 8);
-
+	
+	return word;
+	
 	/*u16 ds = getds();
 	setds(segment);
 	word = *(u16 *)offset;
 	setds(ds);*/
 
-	return word;
+	//return word;
 }
 
 
@@ -78,15 +78,16 @@ u16 getBlock(u16 blk, char *dbuf) {
 }
 
 int search(char *name, INODE *ip) {
+	char sbuf[BlockSize];
 	int index; char c; //index variable and temp char variable
 	DIR *dp; //initialize a directory pointer
 	//printf("Searching for.... %s\n\r", name); getc();
 	for (index = 0; index < 12; index++) { //loop through all the possible blocks
 		//if (index == 12 || index == 13 || index == 14) error(); //single, double, and triple indirect not being handled currently
 		if ( (u16)ip->i_block[index] ) { //make sure that this block contains information and does not just contain empty space
-			getBlock((u16)ip->i_block[index], buf1);
-			dp = (DIR *)buf1;
-			while ( (char *)dp < buf1 + BlockSize ) { //loop through the buffer, making sure not to go over the total size
+			getBlock((u16)ip->i_block[index], sbuf);
+			dp = (DIR *)sbuf;
+			while ( (char *)dp < sbuf + BlockSize ) { //loop through the buffer, making sure not to go over the total size
 				c = dp->name[ dp->name_len ];
 				dp->name[ dp->name_len ] = 0;
 				//printf("%s",dp->name); printf(" "); //print the name of the record we are checking
@@ -106,13 +107,17 @@ int search(char *name, INODE *ip) {
 
 int load(char *filename, int segment) {
 	char *temp;
-	char file[32];
-	int ino = 0, dssize = 0, bsize = 0, i = 0, hsize = sizeof( struct header), tsize;
-	struct header *h;
+	char file[128];//, buf[BlockSize];
+
+	int BufIndex = 0, offset = 0, iblk = -1;
+	int ino = 0, dssize = 0, bsize = 0, i = 0, hsize = sizeof( struct header), tsize = 0;
+	
 	u16 block;
 	u32 *up;
+	
 	GD *gp;
 	INODE *ip;
+	struct header *h;
 
 	if (filename == 0) {
 		printf("No file entered!\n\r");
@@ -122,12 +127,11 @@ int load(char *filename, int segment) {
 	temp = &file[0];
 
 	printf("Loading \"%s\".... ", temp);
-	if ( iblk == 0 ) {
-		getBlock(2, buf);
+	getBlock(2, buf);
 
-		gp = (GD *)buf;
-		iblk = gp->bg_inode_table;
-	}	
+	gp = (GD *)buf;
+	iblk = gp->bg_inode_table;
+
 	//printf("Begin block: %d\n\r", iblk);
 	
 	getBlock(iblk, buf);
@@ -155,25 +159,16 @@ int load(char *filename, int segment) {
 	//i is the index for the loaded file data
 	//first 32 bytes are for header, so we are skipping that
 	printf("\n\rTotal Size: %d\n\rBlock Size: %d\n\rHeader Size: %d\n\r", tsize, BlockSize, hsize);
-	for (i = hsize; i < tsize; i++) {
-		if ( i % BlockSize == 0 )	{
-		//	printf("I: %d, Block: %d\n\r", i, i / BlockSize );
-			getBlock(ip->i_block[ i / BlockSize ], buf);
-		//	getc();
-		}
-		if( i < tsize - bsize ) {
-		//	printf("%d ", i % BlockSize);
-			put_byte( buf[ i % BlockSize ], segment, (i - hsize) );
-		}
-		else {
-			put_byte(0, segment, (i - hsize) );
-		}
-	}
+	for (i = hsize; i < tsize; 	i++,
+								BufIndex = i % BlockSize,
+								block = i / BlockSize,
+								offset = i - hsize,
+								(BufIndex) ? i = i : getBlock( ip->i_block[block], buf ) )
+		put_byte( (i < tsize - bsize) ? buf[BufIndex] : 0, segment, offset );
+
+
+
 	printf("Done\n\r");
 	return 0;
 }
-
-
-
-
 
