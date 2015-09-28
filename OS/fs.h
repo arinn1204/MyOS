@@ -15,6 +15,19 @@ struct header {
 	u32 symbolTable_size; // only if symbol table is present
 };
 
-typedef struct header header;
+
+int setds(u16 segment);
+u16 getds();
+int setes(u16 segment);
+int inces();
+
+int put_byte(u8 byte, u16 segment, u16 offset);
+int put_word(u16 word, u16 segment, u16 offset);
+
+u8 get_byte(u16 segment, u16 offset);
+u16 get_word(u16 segment, u16 offset);
+
+int search(char *name, INODE *ip);
+int load(char *filename, int segment);
 
 #endif

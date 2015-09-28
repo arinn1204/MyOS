@@ -9,6 +9,7 @@ USER := $(ROOTDIR)/User
 
 
 all:
+	@clear
 	@echo "Making bootloader..."
 	$(MAKE) -C $(BOOT)
 	@echo "Bootloader done"
@@ -30,6 +31,8 @@ check: all
 	@echo "File size is correct it is less than 1024 bytes"
 
 run: check
+	@echo ""
+	@echo ""
 	dd if=$(BOOT)/boot of=$(IMAGE) bs=1024 count=1 conv=notrunc
 	@sudo mount -o loop $(IMAGE) $(IMAGE_CONTENTS)
 	sudo cp $(OS)/mtx0 $(IMAGE_CONTENTS)/boot/mtx0

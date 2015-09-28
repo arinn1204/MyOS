@@ -17,7 +17,9 @@
 struct proc {
             struct proc *next;   
             int  *ksp;               /* saved sp; offset = 2 */
-            int uss, usp;           /* offset = 4, 6 respectively */
+            int uss;                 /* usermode stack segment, offset = 4 */
+            int usp;                 /* usermode stack pointer, offset = 6 */
+
             int  pid;
             int  status;            /* READY|DEAD, etc */
             int  ppid;

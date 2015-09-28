@@ -15,9 +15,9 @@ int do_ps() {
 
 	int i;
 
-	kprintf("Name:          PID  PPID  STATUS\n\r");
+	printf("Name:          PID  PPID  STATUS  PRIORITY\n\r");
 	for(i = 0; i < NPROC; i++) {
-		kprintf("%s:           %d   %d   %d   %d\n\r",
+		printf("%s:           %d   %d   %d   %d    %d\n\r",
 			proc[i].name, proc[i].pid, proc[i].ppid, proc[i].status, proc[i].priority);
 	}
 }
@@ -47,13 +47,13 @@ int do_tswitch() {
 */
 int do_kfork() {
 	extern PROC *running;
-
-	PROC *p = kfork(0);
+	char *file = 0;
+	PROC *p = kfork(file);
 	if (p == 0) {
-		kprintf("fork() failed!\n");
+		printf("fork() failed!\n");
 		return -1;
 	}
-	kprintf("PROC %d fork a child %d\n", running->pid, p->pid);
+	printf("PROC %d fork a child %d\n", running->pid, p->pid);
 	return p->pid;
 }
 
@@ -87,15 +87,15 @@ int do_continue() {
 
 	int pid;
 	char c;
-	kprintf("Enter a pid between 0 and 9 to resume\n"); c=kgetc();
+	printf("Enter a pid between 0 and 9 to resume\n"); c=getc();
 	pid = c - '0';
 	if (pid >= NPROC || pid < 0) {
-		kprintf("%d is an invalid number\n", pid);
+		printf("%d is an invalid number\n", pid);
 		return -1;
 	}
 
 	if (proc[pid].status != STOPPED) {
-		kprintf("Process %d is not stopped\n", pid);
+		printf("Process %d is not stopped\n", pid);
 		return -1;
 	}
 
@@ -116,10 +116,10 @@ int do_sleep() {
 int do_wakeup() {
 	extern PROC proc[NPROC];
 	int pid;
-	kprintf("Which proc do you want to wakeup? ");
+	printf("Which proc do you want to wakeup? ");
 	pid = getI();
-	kputs("\n\r");
-	kprintf("Waking P%d\n", pid);
+	printf("\n\r");
+	printf("Waking P%d\n", pid);
 
 	kwakeup(&proc[pid]);
 }
@@ -173,7 +173,7 @@ int chpriority(int pid, int pri) {
 	} //end for
 
 	if ( ! ok ) {
-		kprintf("chpriority failed\n");
+		printf("chpriority failed\n");
 		return -1;
 	}
 
@@ -186,10 +186,10 @@ int chpriority(int pid, int pri) {
 */
 int do_chpriority() {
 	int pid, pri;
-	kprintf("input pid: "); 			pid = getI();
-	kputs("\n\r");
-	kprintf("input new priority: "); 	pri = getI();
-	kputs("\n\r");
+	printf("input pid: "); 			pid = getI();
+	printf("\n\r");
+	printf("input new priority: "); 	pri = getI();
+	printf("\n\r");
 
 	if (pri  < 1) pri = 1;
 	return chpriority(pid, pri);

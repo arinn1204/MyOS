@@ -11,6 +11,8 @@
 #define REG_COUNT 8
 #define ADDR_COUNT (REG_COUNT + 1)
 
+int goUmode();
+
 /**
 */
 PROC *kfork(char *filename) {
@@ -18,14 +20,14 @@ PROC *kfork(char *filename) {
 	extern PROC *readyQueue;
 	extern PROC *freeList;
 	extern PROC proc[NPROC];
-
-	int i;
-	int segment, segsize;
+	int i,segment, segsize, offset, ret;
 	PROC *p;
+	unsigned short word;
+
 	p = get_proc(&freeList);
 
 	if (!p) {
-		kprintf("No more PROC kfork() failed\n");
+		printf("No more PROC kfork() failed\n");
 		return 0;
 	}
 
@@ -47,26 +49,27 @@ PROC *kfork(char *filename) {
 
 
 	if(filename) {
-		segment = (p->pid + 1) * 0x1000;
-		load(filename, segment);
-		segsize = 0x800;
+		//printf("File: %s\n\r", filename);
+		segsize = 0x1000;
+		segment = (p->pid + 1) * segsize;
+		ret = load(filename, segment);
+		if (ret) return p;
 
-		for(i = 1; i < 9; i++)
-			put_word(0, segment, (-2 * i - segsize) );
-
-		put_word(0x0200, segment, -2*1-segsize);		//flag
-		put_word(segment, segment, -2*2-segsize);		//uCS
-		put_word(segment, segment, -2*7-segsize);		//uES
-		put_word(segment, segment, -2*8-segsize);		//uDS
-
-		p->usp = -2*8-segsize;
+		for(i = 1; i < 13; i++) {
+			offset = segsize - (i * 2); 
+			switch(i) {
+				case 1:		word = 0x0200;	break; 	//uFlag
+				case 2:								//uCS
+				case 11:							//uES
+				case 12:	word = segment; break;	//uDS
+				default: 	word = 0; 		break;	//everything else
+			}
+			put_word(word, segment, offset);
+		}
+		p->usp = offset;
 		p->uss = segment;
 
 	}
-
-
-
-
 
 	return p;
 }
@@ -85,22 +88,25 @@ int body() {
 	while(1) {
 		color = (pid % 6) + 0x0A;
 		if (rflag) {
-			kprintf("Proc %d: reschedule\n", pid);
+			printf("Proc %d: reschedule\n", pid);
 			rflag = 0;
 			tswitch();
 		}
-		printList("freeList\t", freeList);
-		printQueue("readyQueue\t", readyQueue);
-		kprintf("The color should be... %x\n", color);
+		printf("|********************************************|\n\r");
+		printList("freeList ", freeList);
+		printQueue("readyQueue ", readyQueue);
+		printf("UMode Segment %x\n\r", (pid + 1)*0x1000);
+		printf("|********************************************|\n\r");
 		//printList("SleepList\t", sleepList);
-
-		kprintf("Proc %d running: priority=%d parent=%d enter a char:\n"
-			"[s|f|t|c|z|a|p|w|q]\n",
+		if (pid < 10) 	printf("P0%d", pid);
+		else			printf("P%d", pid);
+		printf(" running: priority=%d parent=%d enter a char:\n"
+			"[s|f|t|c|z|a|p|w|q|u]\n",
 			pid, proc[pid].priority, proc[pid].ppid);
-		c = kgetc(); kputc(c); kprintf("\n\r");
+		c = getc(); putc(c); printf("\n\r");
 		switch(c) {
 			case 's':	do_tswitch(); 		break;
-			case 'f':	do_kfork(); 		break;
+			case 'f':	kfork("/bin/u1"); 	break;
 			case 'q':	do_exit(); 			break;
 			case 't':	do_stop(); 			break;
 			case 'c':	do_continue(); 		break;
@@ -108,8 +114,8 @@ int body() {
 			case 'a':	do_wakeup(); 		break;
 			case 'p':	do_chpriority(); 	break;
 			case 'w':	do_wait(); 			break;
-			//case 'u':	user_mode();		break;
-			default: kprintf("Not a supported command\n"); break;
+			case 'u':	goUmode();			break;
+			default: printf("Not a supported command\n"); break;
 		}
 	}
 }
@@ -161,5 +167,5 @@ int init() {
 	running = p;
 	nproc = 1;
 
-	kprintf("Init has now finished.\n");
+	printf("Init has now finished.\n");
 }

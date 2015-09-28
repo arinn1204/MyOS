@@ -61,7 +61,7 @@ int kexit(int exitValue) {
 	PROC *p;
 	int i, wakeupP1 = 0;
 	if (running->pid == 1 && nproc > 2) {
-		kprintf("Other procs still exist, P1 can't die yet\n");
+		printf("Other procs still exist, P1 can't die yet\n");
 		return -1;
 	}
 

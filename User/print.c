@@ -5,11 +5,11 @@ BASE = 10;
 char *table = "0123456789ABCDEF";
 
 int putc(char c) {
-	return syscall(7,c,0);
+	return syscall(98,c,0);
 }
 
-int getc() {
-  return syscall(8,0,0);
+char getc() {
+  return syscall(99,0,0);
 }
 
 ///@brief This function will make a call to BIOS and receive a string and places it into str

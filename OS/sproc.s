@@ -1,9 +1,13 @@
 !----------------- proc.s file -----------------------------------------------
-        .globl _tswitch,_kputc,_kgetc,_getds,_setds,_readfd ! EXPORT variables
+        .globl _tswitch,_putc,_getc,_readfd ! EXPORT variables
         .globl _main,_running,_scheduler,_proc,_procSize,_color   ! IMPORT these
         !----- USER MODE -------------
         .globl _int80h, _goUmode ! EXPORT functions
         .globl _kcinth ! IMPORT functions
+
+        !----- REG GET/SET ----------
+        .globl _setds,_getds				! DS
+        .globl _setes,_inces				! ES
 
 
         MTXSEG = 0x1000
@@ -74,7 +78,25 @@ _setds:
     pop   bp
     ret
 
-_kputc:           
+_setes:
+	push bp
+	mov bp,sp
+
+	mov ax,4[bp]
+	mov es,ax
+
+	pop bp
+	ret
+
+_inces:
+
+	mov ax,es
+	add ax,#0x40
+	mov es,ax
+
+	ret
+
+_putc:           
         push   bp
         mov    bp,sp
 	
@@ -86,11 +108,29 @@ _kputc:
         pop    bp
         ret
 
-_kgetc:
+_getc:
         xorb   ah,ah           ! clear ah
         int    0x16            ! call BIOS to get a char in AX
         ret         
 
+
+_readfd:                             
+        push  bp
+      	mov   bp,sp            ! bp = stack frame pointer
+
+        movb  dl, #0x00        ! drive 0=FD0
+        movb  dh, 6[bp]        ! head
+        movb  cl, 8[bp]        ! sector
+        incb  cl               ! BIOS count sector from 1
+        movb  ch, 4[bp]        ! cyl
+        mov   bx, 10[bp]       ! BX=buf ==> memory addr=(ES,BX)
+        mov   ax, #0x0202      ! READ 2 sectors to (EX, BX)
+
+        int  0x13              ! call BIOS to read the block 
+        !jb   _error            ! to error if CarryBit is on [read failed] 
+
+        pop  bp                
+	    ret
 
 
 ! these are for KUMODE
@@ -140,20 +180,3 @@ _goUmode:
 	iret
 
 
-_readfd:                             
-        push  bp
-      	mov   bp,sp            ! bp = stack frame pointer
-
-        movb  dl, #0x00        ! drive 0=FD0
-        movb  dh, 6[bp]        ! head
-        movb  cl, 8[bp]        ! sector
-        incb  cl               ! BIOS count sector from 1
-        movb  ch, 4[bp]        ! cyl
-        mov   bx, 10[bp]       ! BX=buf ==> memory addr=(ES,BX)
-        mov   ax, #0x0202      ! READ 2 sectors to (EX, BX)
-
-        int  0x13              ! call BIOS to read the block 
-        !jb   _error            ! to error if CarryBit is on [read failed] 
-
-        pop  bp                
-	    ret

@@ -6,7 +6,7 @@ int color;
 main()
 { 
   char name[64]; int pid, cmd;
-
+  
   while(1){
     pid = getpid();
     color = 0x000A + (pid % 6);
