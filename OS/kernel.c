@@ -6,7 +6,11 @@
 #include "queue.h"
 #include "io.h"
 
+int getpid() {
+	extern PROC *running;
 
+	return running->pid;
+}
 
 /**
 */

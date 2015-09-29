@@ -110,7 +110,7 @@ int load(char *filename, int segment) {
 	char file[128];//, buf[BlockSize];
 
 	int BufIndex = 0, offset = 0, iblk = -1;
-	int ino = 0, dssize = 0, bsize = 0, i = 0, hsize = sizeof( struct header), tsize = 0;
+	int ino = 0, dssize = 0, bsize = 0, hsize = sizeof( struct header), tsize = 0, i = 0;
 	
 	u16 block;
 	u32 *up;
@@ -155,7 +155,7 @@ int load(char *filename, int segment) {
 	dssize = h->dsize + h->tsize;
 	bsize = h->bsize;
 	tsize = dssize + bsize + hsize;
-
+	getBlock(block, buf);
 	//i is the index for the loaded file data
 	//first 32 bytes are for header, so we are skipping that
 	printf("\n\rTotal Size: %d\n\rBlock Size: %d\n\rHeader Size: %d\n\r", tsize, BlockSize, hsize);
@@ -167,13 +167,10 @@ int load(char *filename, int segment) {
 								put_byte( (i < tsize - bsize) ? buf[BufIndex] : 0, segment, offset )
  		);*/
 	for(i = hsize; i < tsize; i++) {
-		BufIndex = i % BlockSize;
-		block = i / BlockSize;
-		offset = i - hsize;
-		if ( ! BufIndex ) getBlock(ip->i_block[block], buf);
-		put_byte( (i < tsize - bsize) ? buf[BufIndex] : 0, segment, offset);
+		if (i % BlockSize == 0) getBlock(ip->i_block[i / BlockSize], buf);
+		if (i < (tsize - bsize) ) put_byte(buf[i % BlockSize], segment, i - hsize);
+		else put_byte(0, segment, i - hsize);
 	}
-		
 
 
 	printf("Done\n\r");

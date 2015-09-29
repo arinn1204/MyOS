@@ -55,20 +55,20 @@ PROC *kfork(char *filename) {
 		ret = load(filename, segment);
 		if (ret) return p;
 
-		for(i = 1; i < 13; i++) {
-			offset = segsize - (i * 2); 
+		for(i = 1; i < 9; i++) {
+			offset = (i * (-2)); 
 			switch(i) {
 				case 1:		word = 0x0200;	break; 	//uFlag
 				case 2:								//uCS
-				case 11:							//uES
-				case 12:	word = segment; break;	//uDS
+				case 7:								//uES
+				case 8:		word = segment; break;	//uDS
 				default: 	word = 0; 		break;	//everything else
 			}
 			put_word(word, segment, offset);
 		}
+		
 		p->usp = offset;
 		p->uss = segment;
-
 	}
 
 	return p;

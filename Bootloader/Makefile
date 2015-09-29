@@ -12,4 +12,4 @@ all: $(OBJECT_FILES)
 	$(AS) -o bs.o bs.s
 	$(LD) $(OBJECTS) $(LDFLAGS) -o $(EXECUTABLE)
 clean:
-	@$(RM) $(OBJECTS) $(EXECUTABLE)
+	$(RM) $(OBJECTS) $(EXECUTABLE)

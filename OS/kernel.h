@@ -7,6 +7,7 @@
 
 int set_vec(unsigned short vector, unsigned short handler);
 int do_ps();
+int getpid();
 int chname(char *);
 int do_tswitch();
 int do_kfork();

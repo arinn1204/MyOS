@@ -1,5 +1,4 @@
-
-
+#include "usercode.h"
 #include "print.h"
 
 char *cmd[]={"getpid", "ps", "chname", "kfork", "switch", "wait", "exit", 0};
@@ -27,7 +26,7 @@ int find_cmd(char *name)
 
 int getpid()
 {
-   return syscall(0,0,0);
+   syscall(0,0,0);
 }
 
 int ps()

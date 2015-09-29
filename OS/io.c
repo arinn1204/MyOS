@@ -21,6 +21,16 @@ int getI() {
 	return ret;
 }
 
+int gets(char str[]) {
+	char c; //character being received by BIOS
+	int index = 0; //index variable used to loop through str
+	while( ( c = getc() ) != '\r' ) //loop through until an enter is received
+		str[index++] = c, putc(c); //assign location to string at index this will also print to the screen what is being typed
+
+	str[index] = 0; //make sure the last character is a NULL
+	return 0; //0 for success
+}
+
 ///@brief This function will make a call to the bios to  print s to the screen
 ///@param STR this will contain the string that is wanted to print
 ///@returns This will return 0 upon success

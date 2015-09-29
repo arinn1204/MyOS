@@ -5,7 +5,7 @@ RM := rm -f
 EXECUTABLE := mtx0
 GETSIZE := stat $(EXECUTABLE) | grep Size | awk '{print $$2}'
 
-CFLAGS := -ansi
+CFLAGS := -ansi -D_LAB_3_
 PROC_OBJECTS := main.o fs.o kernel.o int.o io.o proc.o queue.o wait.o
 OBJECTS := sproc.o $(PROC_OBJECTS)
 LDFLAGS := -d /usr/lib/bcc/libc.a

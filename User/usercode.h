@@ -11,8 +11,5 @@ int kswitch();
 int wait();
 int exit();
 int invalid(char *);
-int gets(char str[]);
-int printf(char fmt[], ...);
-int getc();
 
 #endif

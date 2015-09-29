@@ -1,15 +1,19 @@
 #include "usercode.h"
-
+#include "print.h"
 
 int color;
+int syscall(int a,int b,int c,int d);
 
-main()
-{ 
+int main(void) { 
   char name[64]; int pid, cmd;
-  
+
+
+  syscall(0,0,0,0);
+  printf("In user code\n\r"); getc();
+ 
   while(1){
-    pid = getpid();
-    color = 0x000A + (pid % 6);
+    //pid = getpid();
+   // color = 0x000A + (pid % 6);
        
     printf("----------------------------------------------\n");
     printf("I am proc %d in U mode: running segment=%x\n",getpid(), getcs());

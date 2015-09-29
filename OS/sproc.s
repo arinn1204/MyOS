@@ -96,24 +96,6 @@ _inces:
 
 	ret
 
-_putc:           
-        push   bp
-        mov    bp,sp
-	
-        movb   al,4[bp]        ! get the char into aL
-        movb   ah,#14          ! aH = 14
-        mov     bx,_color
-        int    0x10            ! call BIOS to display the char
-
-        pop    bp
-        ret
-
-_getc:
-        xorb   ah,ah           ! clear ah
-        int    0x16            ! call BIOS to get a char in AX
-        ret         
-
-
 _readfd:                             
         push  bp
       	mov   bp,sp            ! bp = stack frame pointer
@@ -180,3 +162,21 @@ _goUmode:
 	iret
 
 
+.globl _putc,_getc,_color
+
+_putc:           
+        push   bp
+        mov    bp,sp
+	
+        movb   al,4[bp]        ! get the char into aL
+        movb   ah,#14          ! aH = 14
+        mov     bx,_color
+        int    0x10            ! call BIOS to display the char
+
+        pop    bp
+        ret
+
+_getc:
+        xorb   ah,ah           ! clear ah
+        int    0x16            ! call BIOS to get a char in AX
+        ret         
