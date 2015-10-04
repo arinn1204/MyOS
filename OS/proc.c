@@ -11,6 +11,17 @@
 #define REG_COUNT 8
 #define ADDR_COUNT (REG_COUNT + 1)
 
+#ifndef _LAB_3_
+
+#define USER_REG 13
+
+#else
+
+#define USER_REG 9
+
+#endif
+
+
 int goUmode();
 
 /**
@@ -55,14 +66,14 @@ PROC *kfork(char *filename) {
 		ret = load(filename, segment);
 		if (!ret) return p;
 
-		for(i = 1; i < 9; i++) {
+		for(i = 1; i < USER_REG; i++) {
 			offset = (i * (-2)); 
 			switch(i) {
-				case 1:		word = 0x0200;	break; 	//uFlag
-				case 2:								//uCS
-				case 7:								//uES
-				case 8:		word = segment; break;	//uDS
-				default: 	word = 0; 		break;	//everything else
+				case 1:				word = 0x0200;	break; 	//uFlag
+				case 2:										//uCS
+				case USER_REG - 2:							//uES
+				case USER_REG - 1:	word = segment; break;	//uDS
+				default: 			word = 0; 		break;	//everything else
 			}
 			put_word(word, segment, offset);
 		}		

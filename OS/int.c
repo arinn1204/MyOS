@@ -12,8 +12,16 @@ typedef unsigned long u32;
 #include "io.h"
 
 #define AX 8
+
+#ifndef _LAB_3_
+
+#define PA 13
+
+#else
+
 #define PA 9
 
+#endif
 
 int do_chname(char *str) {
 	extern PROC *running;
@@ -46,13 +54,13 @@ int kcinth() {
 	d = get_word(segment, offset + 2*(PA + 3));
 
 	switch(a) {
-		case 0: 	r = getpid();			break;
-		case 1: 	r = do_ps();			break;
-		case 2:		r = do_chname(b);		break;
-		case 3:		r = kfork("/bin/u1");	break;
-		case 4:		r = do_tswitch();		break;
-		case 5:		r = kwait(b);			break;
-		case 6:		r = kexit(b);			break;
+		case 0: 	r = getpid();				break;
+		case 1: 	r = do_ps();				break;
+		case 2:		r = do_chname(b);			break;
+		case 3:		r = kfork("/bin/u1")->pid;	break;
+		case 4:		r = do_tswitch();			break;
+		case 5:		r = kwait(b);				break;
+		case 6:		r = kexit(b);				break;
 		//case 98:	r = putc(b);			break;
 		//case 99:	r = getc();				break;
 		default: printf("%d is not supported currently.\n\r"); break;

@@ -31,6 +31,10 @@ dead:	jmp dead                        ! loop if main() ever returns
 
 
 _int80h:
+	push ax
+	push bx
+	push cx
+	push dx
 	push bp
 	push si
 	push di
@@ -59,11 +63,16 @@ _goUmode:
 	mov ax,USS[bx]
 	mov ss,ax
 	mov sp,USP[bx]
+	
 	pop ds
 	pop es
 	pop di
 	pop si
 	pop bp
+	pop dx
+	pop cx
+	pop bx
+	pop ax
 	iret
    
 !------------------------------------------------------------------------

@@ -62,7 +62,7 @@ boot: $(BOOT_OBJECTS)
 	@echo ""
 
 
-kernel: CFLAGS = -ansi -D_LAB_3_ -D_MTXLIB_
+kernel: CFLAGS = -ansi -D_LAB_4_ -D_MTXLIB_
 kernel: INCLIB := $(KERNEL_DIR)/mtxlib
 kernel: GETSIZE := stat $(KERNEL_DIR)/$(KERNEL) | grep Size | awk '{print $$2}'
 kernel: $(KERNEL_OBJECTS)
@@ -73,7 +73,7 @@ kernel: $(KERNEL_OBJECTS)
 	@echo ""
 	@echo ""
 
-user1: CFLAGS = -ansi -D_LAB_3_
+user1: CFLAGS = -ansi -D_LAB_4_
 user1: LDFLAGS = /usr/lib/bcc/libc.a
 user1: INCLIB := $(USER_DIR)/mtxlib
 user1: $(USER1_OBJECTS)

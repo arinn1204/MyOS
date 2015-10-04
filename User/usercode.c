@@ -45,18 +45,16 @@ int chname()
 int kfork()
 {
   #ifndef _LAB_3_
-    int pid;
-    printf("proc %d enter kernel to kfork a child\n", getpid());
-    pid = syscall(3, 0, 0);
-    if (pid>0)
-      printf("proc %d kforked a child %d\n", getpid(), pid);
-    else
-      printf("kforked failed\n");
+      int pid = -1;
+      printf("proc %d enter kernel to kfork a child\n", getpid());
+      pid = syscall(3, 0, 0);
+      if (pid > 0)  printf("proc %d kforked a child %d\n", getpid(), pid);
+      else          printf("kforked failed\n");
   #else
-    int pid;
-    printf("proc ");  getpid(); printf("enter kernel to kfork a child\n");
-    syscall(3, 0, 0);
-    //printf("proc %d kforked a child %d\n", getpid(), pid);
+      int pid;
+      printf("proc ");  getpid(); printf("enter kernel to kfork a child\n");
+      syscall(3, 0, 0);
+      //printf("proc %d kforked a child %d\n", getpid(), pid);
   #endif
 }    
 

@@ -12,7 +12,7 @@ int main(void) {
   while(1){
        
     printf("----------------------------------------------\n");
-    #ifdef _LAB_3
+    #ifndef _LAB_3_
       printf("I am proc %d in U mode: running segment=%x\n",getpid(), getcs());
     #else
       printf("I am proc "); getpid(); printf(" in U mode: running segment=%x\n", getcs());
