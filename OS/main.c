@@ -7,7 +7,12 @@ int int80h();
 
 
 int procSize = sizeof( PROC );
+
+#ifndef _MTXLIB_
+
 int color = 0x0A;
+
+#endif
 
 int main() {
 	extern PROC *readyQueue;
@@ -20,8 +25,6 @@ int main() {
 	printf("Init complete\n\r");
 	set_vec(80, int80h);
 	
-	getc();
-	
 	kfork("/bin/u1");
 
 	printf("P%d is now going to enter infinite loop!\n", running->pid);
@@ -29,7 +32,7 @@ int main() {
 		printf("P%d is now waiting for something in the queue...\n", running->pid);
 		while( ! readyQueue);
 		printf("P%d is now going to switch!\n", running->pid);
-		do_tswitch();
+		tswitch();
 		printf("p%d is now running\n", running->pid);
 	}
 }

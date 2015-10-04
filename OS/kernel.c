@@ -8,8 +8,11 @@
 
 int getpid() {
 	extern PROC *running;
-
-	return running->pid;
+	#ifdef _LAB_3_
+		printf("%d",running->pid);
+	#else
+		return running->pid;
+	#endif
 }
 
 /**

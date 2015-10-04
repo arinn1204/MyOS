@@ -12,7 +12,7 @@ typedef struct ext2_dir_entry_2 DIR;
 
 #define NULL 0
 #define BlockSize 1024
-char buf[BlockSize];
+
 	/*			LITTLE ENDIAN
 	*	 _____________________________
 	*	|			   |			  |
@@ -20,6 +20,22 @@ char buf[BlockSize];
 	*	|	BYTE	   |	BYTE	  |
 	*	|______________|______________|
 	*/
+
+
+///@brief This function is responsible for receiving the block information from the disk
+///@param blk This should be an integer (u16) that denotes the block number that is being received
+///@param buf This is a string that the block information will be stored into
+///@returns This will return a 0 for success and readfd will print if error
+u16 getBlock(u16 blk, char *dbuf) {
+	readfd( blk / 18, ( blk % 18 ) / 9,  ( ( blk % 18 ) % 9 ) << 1, dbuf); //this function is defined in bs.s, it will get the block info and put it into buf
+	return 0; //signify succesful completion
+}
+
+
+
+#ifndef _MTXLIB_
+
+char buf[BlockSize];
 
 int put_byte(u8 byte, u16 segment, u16 offset) {
 	u16 ds = getds();    // save DS
@@ -67,16 +83,6 @@ u16 get_word(u16 segment, u16 offset) {
 	//return word;
 }
 
-
-///@brief This function is responsible for receiving the block information from the disk
-///@param blk This should be an integer (u16) that denotes the block number that is being received
-///@param buf This is a string that the block information will be stored into
-///@returns This will return a 0 for success and readfd will print if error
-u16 getBlock(u16 blk, char *dbuf) {
-	readfd( blk / 18, ( blk % 18 ) / 9,  ( ( blk % 18 ) % 9 ) << 1, dbuf); //this function is defined in bs.s, it will get the block info and put it into buf
-	return 0; //signify succesful completion
-}
-
 int search(char *name, INODE *ip) {
 	char sbuf[BlockSize];
 	int index; char c; //index variable and temp char variable
@@ -121,7 +127,7 @@ int load(char *filename, int segment) {
 
 	if (filename == 0) {
 		printf("No file entered!\n\r");
-		return 1;
+		return 0;
 	}
 	strncpy(file, filename, 32);
 	temp = &file[0];
@@ -174,6 +180,7 @@ int load(char *filename, int segment) {
 
 
 	printf("Done\n\r");
-	return 0;
+	return 1;
 }
 
+#endif

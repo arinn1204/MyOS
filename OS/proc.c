@@ -53,7 +53,7 @@ PROC *kfork(char *filename) {
 		segsize = 0x1000;
 		segment = (p->pid + 1) * segsize;
 		ret = load(filename, segment);
-		if (ret) return p;
+		if (!ret) return p;
 
 		for(i = 1; i < 9; i++) {
 			offset = (i * (-2)); 
@@ -65,10 +65,10 @@ PROC *kfork(char *filename) {
 				default: 	word = 0; 		break;	//everything else
 			}
 			put_word(word, segment, offset);
-		}
-		
+		}		
 		p->usp = offset;
 		p->uss = segment;
+		printf("Process set up with %s\n", filename);
 	}
 
 	return p;

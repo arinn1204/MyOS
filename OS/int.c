@@ -21,11 +21,12 @@ int do_chname(char *str) {
 	char name[32];
 	u16 segment = ( running->pid + 1 )*0x1000;
 
-	while(*(str + i) != 0 && i < 32) {
-		name[i] = get_byte(segment, *(str + i));
+	while( get_byte(segment, str + i ) != 0 && i < 32) {
+		name[i] = get_byte(segment, str + i);
+		putc(name[i++]);
 	}
 
-	name[31] = 0;
+	name[ i ] = 0;
 	return chname(&name[0]);
 }
 
@@ -35,14 +36,11 @@ int do_chname(char *str) {
 int kcinth() {
 	extern PROC *running;
 	int a,b,c,d,r;
-	char name[32];
 	u16 offset = running->usp;
 	u16 segment = ( running->pid + 1 ) * 0x1000;
 
 	//getting cmd params off of stack from ax, bx, cx, dx
 	a = get_word(segment, offset + 2*PA);
-	printf("Sys call: %d\n\r", a); getc();
-	//if (a < 90) printf("Sys call %d\n\r", a);
 	b = get_word(segment, offset + 2*(PA + 1));
 	c = get_word(segment, offset + 2*(PA + 2));
 	d = get_word(segment, offset + 2*(PA + 3));
@@ -51,7 +49,7 @@ int kcinth() {
 		case 0: 	r = getpid();			break;
 		case 1: 	r = do_ps();			break;
 		case 2:		r = do_chname(b);		break;
-		case 3:		r = do_kfork();			break;
+		case 3:		r = kfork("/bin/u1");	break;
 		case 4:		r = do_tswitch();		break;
 		case 5:		r = kwait(b);			break;
 		case 6:		r = kexit(b);			break;
@@ -61,9 +59,8 @@ int kcinth() {
 	}
 #ifndef _LAB_3_
 	put_word(r, segment, offset + 2*AX);
-#else
-	printf("Would have returned: %d\n", r);
 #endif
 
-	return;
+	return 0;
 }
+
