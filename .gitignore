@@ -5,6 +5,8 @@
 #Don't ignore these directories
 !Bootloader
 !OS
+!User
+
 
 #Don't ignore C, H, or S files
 !*.c
@@ -25,3 +27,6 @@
 *dev*
 
 
+
+#Don't ignore mtxlib
+!mtxlib

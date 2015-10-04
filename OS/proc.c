@@ -8,19 +8,33 @@
 #include "kernel.h"
 #include "io.h"
 
-#define REG_COUNT 10
-#define ADDR_COUNT (REG_COUNT + 3)
+#define REG_COUNT 8
+#define ADDR_COUNT (REG_COUNT + 1)
+
+#ifndef _LAB_3_
+
+#define USER_REG 13
+
+#else
+
+#define USER_REG 9
+
+#endif
+
+
+int goUmode();
 
 /**
 */
-PROC *kfork() {
+PROC *kfork(char *filename) {
 	extern PROC *running;
 	extern PROC *readyQueue;
 	extern PROC *freeList;
 	extern PROC proc[NPROC];
-
-	int i;
+	int i,segment, segsize, offset, ret;
 	PROC *p;
+	unsigned short word;
+
 	p = get_proc(&freeList);
 
 	if (!p) {
@@ -28,7 +42,7 @@ PROC *kfork() {
 		return 0;
 	}
 
-
+	
 	p->status = READY;
 	p->priority = 1;
 	p->ppid = running->pid;
@@ -38,25 +52,49 @@ PROC *kfork() {
 		p->kstack[SSIZE - i] = 0;
 	}
 
-	p->kstack[SSIZE - ADDR_COUNT] = 0x1000;
-	p->kstack[SSIZE - (ADDR_COUNT - 1)] = 0x1000;
-	p->kstack[SSIZE - 3] = (int)body;
-	p->kstack[SSIZE - 1] = p->pid;
+	p->kstack[SSIZE - 1] = (int)body;
 	p->ksp = &p->kstack[SSIZE - ADDR_COUNT];
 
 	enqueue(&readyQueue, p);
+
+
+
+	if(filename) {
+		//printf("File: %s\n\r", filename);
+		segsize = 0x1000;
+		segment = (p->pid + 1) * segsize;
+		ret = load(filename, segment);
+		if (!ret) return p;
+
+		for(i = 1; i < USER_REG; i++) {
+			offset = (i * (-2)); 
+			switch(i) {
+				case 1:				word = 0x0200;	break; 	//uFlag
+				case 2:										//uCS
+				case USER_REG - 2:							//uES
+				case USER_REG - 1:	word = segment; break;	//uDS
+				default: 			word = 0; 		break;	//everything else
+			}
+			put_word(word, segment, offset);
+		}		
+		p->usp = offset;
+		p->uss = segment;
+		printf("Process set up with %s\n", filename);
+	}
+
 	return p;
 }
 /**
 */
-int body(int pid) {
+int body() {
 	extern int rflag;
 	extern PROC *freeList;
 	extern PROC *readyQueue;
 	extern PROC proc[NPROC];
 	extern int color;
+	extern PROC *running;
 
-
+	int pid = running->pid;
 	char c;	
 	while(1) {
 		color = (pid % 6) + 0x0A;
@@ -65,25 +103,29 @@ int body(int pid) {
 			rflag = 0;
 			tswitch();
 		}
-		printList("freeList\t", freeList);
-		printQueue("readyQueue\t", readyQueue);
-		printf("The color should be... %x\n", color);
+		printf("|********************************************|\n\r");
+		printList("freeList ", freeList);
+		printQueue("readyQueue ", readyQueue);
+		printf("UMode Segment %x\n\r", (pid + 1)*0x1000);
+		printf("|********************************************|\n\r");
 		//printList("SleepList\t", sleepList);
-
-		printf("Proc %d running: priority=%d parent=%d enter a char:\n"
-			"[s|f|t|c|z|a|p|w|q]\n",
+		if (pid < 10) 	printf("P0%d", pid);
+		else			printf("P%d", pid);
+		printf(" running: priority=%d parent=%d enter a char:\n"
+			"[s|f|t|c|z|a|p|w|q|u]\n",
 			pid, proc[pid].priority, proc[pid].ppid);
-		c = getc(); putc(c); puts("\n\r");
+		c = getc(); putc(c); printf("\n\r");
 		switch(c) {
 			case 's':	do_tswitch(); 		break;
-			case 'f':	do_kfork(); 		break;
-			case 'q':	do_exit(); 		break;
-			case 't':	do_stop(); 		break;
+			case 'f':	kfork("/bin/u1"); 	break;
+			case 'q':	do_exit(); 			break;
+			case 't':	do_stop(); 			break;
 			case 'c':	do_continue(); 		break;
 			case 'z':	do_sleep(); 		break;
 			case 'a':	do_wakeup(); 		break;
 			case 'p':	do_chpriority(); 	break;
-			case 'w':	do_wait(); 		break;
+			case 'w':	do_wait(); 			break;
+			case 'u':	goUmode();			break;
 			default: printf("Not a supported command\n"); break;
 		}
 	}
@@ -103,7 +145,7 @@ int scheduler() {
 	rflag = 0;
 
 }
-
+char *names[] = {"sun", "mercury", "venus", "earth", "mars", "jupiter", "saturn", "neptune", "uranus"};
 /**
 */
 int init() {
@@ -115,12 +157,16 @@ int init() {
 	extern int nproc;
 
 	PROC *p; int i;
+
+
 	for (i = 0; i < NPROC; i++) {
 		p = &proc[i];
 		p->pid = i;
+		p->ppid = -1;
 		p->status = FREE;
 		p->priority = 0;
 		p->next = &proc[i + 1];
+		strcpy(p->name, names[i]);
 	}
 
 	freeList = &proc[0]; proc[NPROC - 1].next = 0;

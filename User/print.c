@@ -1,41 +1,26 @@
-#include "proc.h"
-#include "io.h"
+#include "print.h"
 
+
+BASE = 10;
 char *table = "0123456789ABCDEF";
+int putc(char c);
+char getc();
 
-/**
-*/
-int getI() {
-	int ret = 0;
-	char c;
-	while( ( c = getc() ) != '\r' )  {
-		putc(c);
-		if (c < '0')		break;
-		else if (c > '9') 	break;
-		ret *= 10;
-		ret += (c - '0');
-	}
 
-	return ret;
+
+///@brief This function will make a call to BIOS and receive a string and places it into str
+///@param STR this will contain the string that was received by the user
+///@returns This will return 0 for success, str will be 0 if no characters received
+int gets(char str[ ]) {
+  char c; //character being received by BIOS
+  int index = 0; //index variable used to loop through str
+  while( ( c = getc() ) != '\r' ) //loop through until an enter is received
+    str[index++] = c, putc(c); //assign location to string at index this will also print to the screen what is being typed
+
+  str[index] = 0; //make sure the last character is a NULL
+  return 0; //0 for success
 }
 
-
-/**
-*/
-int printQueue(char *name, PROC *queue) {
-	PROC *q = queue;
-
-	printf("%s", name);
-	printf("= ");
-
-	while( q ) {
-		printf("%d ->", q->pid);
-		q = q->next;
-	}
-	printf("NULL\n\r");
-
-	return 0;
-}
 
 ///@brief This function will make a call to the bios to  print s to the screen
 ///@param STR this will contain the string that is wanted to print
@@ -47,24 +32,6 @@ int puts(char *str) {
 	}
 	return 0; //return 0 to signify successful completion
 }
-
-
-
-#ifndef _MTXLIB_
-
-int BASE = 10;
-
-int gets(char str[]) {
-	char c; //character being received by BIOS
-	int index = 0; //index variable used to loop through str
-	while( ( c = getc() ) != '\r' ) //loop through until an enter is received
-		str[index++] = c, putc(c); //assign location to string at index this will also print to the screen what is being typed
-
-	str[index] = 0; //make sure the last character is a NULL
-	return 0; //0 for success
-}
-
-
 
 /**@brief This function is the core of all of the print statements. This function is designed to use the global variable table
 * in order to print the number that is passed in through x.
@@ -209,25 +176,4 @@ int printf(char fmt[], ...) {
 
 	return 0;
 }
-
-
-/**
-*/
-
-int printList(char *name, PROC *list) {
-	PROC *p = list;
-
-	printf("%s", name);
-	printf("= ");
-
-	while( p ) {
-		printf("%d ->", p->pid);
-		p = p->next;
-	}
-	printf("NULL\n\r");
-	return 0;
-}
-
-
-#endif
 

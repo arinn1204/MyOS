@@ -6,6 +6,44 @@
 #include "queue.h"
 #include "io.h"
 
+int getpid() {
+	extern PROC *running;
+	#ifdef _LAB_3_
+		printf("%d",running->pid);
+	#else
+		return running->pid;
+	#endif
+}
+
+/**
+*/
+int do_ps() {
+	extern PROC proc[NPROC];
+
+	int i;
+
+	printf("Name:          PID  PPID  STATUS  PRIORITY\n\r");
+	for(i = 0; i < NPROC; i++) {
+		printf("%s:           %d   %d   %d   %d    %d\n\r",
+			proc[i].name, proc[i].pid, proc[i].ppid, proc[i].status, proc[i].priority);
+	}
+}
+/**
+*/
+int chname(char *newname) { 
+	extern PROC *running;
+	strcpy(running->name, newname);
+
+}
+
+/**
+*/
+int set_vec(unsigned short vector, unsigned short handler) {
+	put_word(handler, 0, vector << 2);
+	put_word(0x1000, 0, (vector << 2) + 2);
+}
+
+
 /**
 */
 int do_tswitch() {
@@ -16,8 +54,8 @@ int do_tswitch() {
 */
 int do_kfork() {
 	extern PROC *running;
-
-	PROC *p = kfork();
+	char *file = 0;
+	PROC *p = kfork(file);
 	if (p == 0) {
 		printf("fork() failed!\n");
 		return -1;
@@ -87,7 +125,7 @@ int do_wakeup() {
 	int pid;
 	printf("Which proc do you want to wakeup? ");
 	pid = getI();
-	puts("\n\r");
+	printf("\n\r");
 	printf("Waking P%d\n", pid);
 
 	kwakeup(&proc[pid]);
@@ -156,9 +194,9 @@ int chpriority(int pid, int pri) {
 int do_chpriority() {
 	int pid, pri;
 	printf("input pid: "); 			pid = getI();
-	puts("\n\r");
+	printf("\n\r");
 	printf("input new priority: "); 	pri = getI();
-	puts("\n\r");
+	printf("\n\r");
 
 	if (pri  < 1) pri = 1;
 	return chpriority(pid, pri);

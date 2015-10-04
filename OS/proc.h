@@ -17,6 +17,9 @@
 struct proc {
             struct proc *next;   
             int  *ksp;               /* saved sp; offset = 2 */
+            int uss;                 /* usermode stack segment, offset = 4 */
+            int usp;                 /* usermode stack pointer, offset = 6 */
+
             int  pid;
             int  status;            /* READY|DEAD, etc */
             int  ppid;
@@ -24,6 +27,7 @@ struct proc {
             int priority;
             int event;
             int exitCode;
+            char name[32];
             int  kstack[SSIZE];     // kmode stack of task
 };
 
@@ -32,7 +36,7 @@ PROC proc[NPROC], *running, *readyQueue, *freeList, *sleepList;
 int nproc, rflag;
 
 
-PROC *kfork();
+PROC *kfork(char *filename);
 int body();
 int scheduler();
 int init();
