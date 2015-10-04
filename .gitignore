@@ -27,3 +27,6 @@
 *dev*
 
 
+
+#Don't ignore mtxlib
+!mtxlib
