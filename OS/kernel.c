@@ -15,6 +15,45 @@ int getpid() {
 	#endif
 }
 
+int maxName() {
+	extern PROC proc[NPROC];
+	int i, max = -1;
+
+	for(i = 0; i < NPROC; i++) {
+		if ( strlen(proc[i].name) > max)
+			max = strlen(proc[i].name);
+	}
+	return max;
+}
+
+int printName(char *name) {
+	int i, max = maxName();
+	printf("%s:", name);
+	for(i = strlen(name) + 1; i <= max; i++) putc(' ');
+}
+
+
+/*typedef enum STATUS {FREE,
+      READY,
+      RUNNING,
+      STOPPED,
+      SLEEP,
+      ZOMBIE
+} STATUS;
+*/
+char *statuses[] = {"FREE", "READY", "RUNNING", "STOPPED", "SLEEP", "ZOMBIE", 0};
+
+int printStatus(int status) {
+	int i, max = -1;
+
+	for(i = 0; i < 6; i++) if( strlen( statuses[i] ) > max ) max = strlen( statuses[i] );
+
+	printf("%s", statuses[status]);
+	for (i = strlen( statuses[status] ); i < max; i++) putc(' ');
+}
+
+
+
 /**
 */
 int do_ps() {
@@ -22,10 +61,14 @@ int do_ps() {
 
 	int i;
 
-	printf("Name:          PID  PPID  STATUS  PRIORITY\n\r");
+	printName("Name"), printf("       PID  PPID  STATUS  PRIORITY\n\n");
 	for(i = 0; i < NPROC; i++) {
-		printf("%s:           %d   %d   %d   %d    %d\n\r",
-			proc[i].name, proc[i].pid, proc[i].ppid, proc[i].status, proc[i].priority);
+		printName(proc[i].name);
+		puts("    ");
+		(proc[i].pid < 0) 	? 	printf("   %d", proc[i].pid) 	: printf("    %d", proc[i].pid);
+		(proc[i].ppid < 0) 	? 	printf("    %d", proc[i].ppid) 	: printf("     %d", proc[i].ppid);
+		printf("   "), printStatus(proc[i].status);
+		printf("    %d\n\r", proc[i].priority);
 	}
 }
 /**

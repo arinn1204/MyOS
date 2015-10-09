@@ -3,10 +3,17 @@
 
 BASE = 10;
 char *table = "0123456789ABCDEF";
-int putc(char c);
-char getc();
+#ifndef _LAB_3_
 
+int putc(char c) {
+	return syscall(7, c, 0, 0);
+}
 
+char getc() {
+	return syscall(8, 0, 0, 0);
+}
+
+#endif
 
 ///@brief This function will make a call to BIOS and receive a string and places it into str
 ///@param STR this will contain the string that was received by the user

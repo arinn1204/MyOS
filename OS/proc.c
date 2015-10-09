@@ -8,82 +8,10 @@
 #include "kernel.h"
 #include "io.h"
 
-#define REG_COUNT 8
-#define ADDR_COUNT (REG_COUNT + 1)
-
-#ifndef _LAB_3_
-
-#define USER_REG 13
-
-#else
-
-#define USER_REG 9
-
-#endif
 
 
 int goUmode();
 
-/**
-*/
-PROC *kfork(char *filename) {
-	extern PROC *running;
-	extern PROC *readyQueue;
-	extern PROC *freeList;
-	extern PROC proc[NPROC];
-	int i,segment, segsize, offset, ret;
-	PROC *p;
-	unsigned short word;
-
-	p = get_proc(&freeList);
-
-	if (!p) {
-		printf("No more PROC kfork() failed\n");
-		return 0;
-	}
-
-	
-	p->status = READY;
-	p->priority = 1;
-	p->ppid = running->pid;
-	p->parent = &proc[running->pid];
-
-	for(i = 1; i <= ADDR_COUNT; i++) {
-		p->kstack[SSIZE - i] = 0;
-	}
-
-	p->kstack[SSIZE - 1] = (int)body;
-	p->ksp = &p->kstack[SSIZE - ADDR_COUNT];
-
-	enqueue(&readyQueue, p);
-
-
-
-	if(filename) {
-		//printf("File: %s\n\r", filename);
-		segsize = 0x1000;
-		segment = (p->pid + 1) * segsize;
-		ret = load(filename, segment);
-		if (!ret) return p;
-
-		for(i = 1; i < USER_REG; i++) {
-			offset = (i * (-2)); 
-			switch(i) {
-				case 1:				word = 0x0200;	break; 	//uFlag
-				case 2:										//uCS
-				case USER_REG - 2:							//uES
-				case USER_REG - 1:	word = segment; break;	//uDS
-				default: 			word = 0; 		break;	//everything else
-			}
-			put_word(word, segment, offset);
-		}		
-		p->usp = offset;
-		p->uss = segment;
-		printf("Process set up with %s\n", filename);
-	}
-
-	return p;
-}
 /**
 */
 int body() {
@@ -145,7 +73,7 @@ int scheduler() {
 	rflag = 0;
 
 }
-char *names[] = {"sun", "mercury", "venus", "earth", "mars", "jupiter", "saturn", "neptune", "uranus"};
+char *names[] = {"Sun", "Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Neptune", "Uranus", 0};
 /**
 */
 int init() {

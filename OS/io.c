@@ -48,10 +48,6 @@ int puts(char *str) {
 	return 0; //return 0 to signify successful completion
 }
 
-
-
-#ifndef _MTXLIB_
-
 int BASE = 10;
 
 int gets(char str[]) {
@@ -227,7 +223,3 @@ int printList(char *name, PROC *list) {
 	printf("NULL\n\r");
 	return 0;
 }
-
-
-#endif
-

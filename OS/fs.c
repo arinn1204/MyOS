@@ -32,9 +32,6 @@ u16 getBlock(u16 blk, char *dbuf) {
 }
 
 
-
-#ifndef _MTXLIB_
-
 char buf[BlockSize];
 
 int put_byte(u8 byte, u16 segment, u16 offset) {
@@ -83,6 +80,9 @@ u16 get_word(u16 segment, u16 offset) {
 	//return word;
 }
 
+
+#ifndef _MTXLIB_
+
 int search(char *name, INODE *ip) {
 	char sbuf[BlockSize];
 	int index; char c; //index variable and temp char variable
@@ -110,6 +110,7 @@ int search(char *name, INODE *ip) {
 		return -1;
 	} // end of index for loop
 }
+
 
 int load(char *filename, int segment) {
 	char *temp;

@@ -10,18 +10,21 @@ typedef unsigned long u32;
 #include "kernel.h"
 #include "proc.h"
 #include "io.h"
+#include "forkexec.h"
 
 #define AX 8
 
 #ifndef _LAB_3_
 
-#define PA 13
+	#define PA 13
 
 #else
 
-#define PA 9
+	#define PA 9
 
 #endif
+
+
 
 int do_chname(char *str) {
 	extern PROC *running;
@@ -42,6 +45,7 @@ int do_chname(char *str) {
 * @brief
 */
 int kcinth() {
+	extern int color;
 	extern PROC *running;
 	int a,b,c,d,r;
 	u16 offset = running->usp;
@@ -61,8 +65,11 @@ int kcinth() {
 		case 4:		r = do_tswitch();			break;
 		case 5:		r = kwait(b);				break;
 		case 6:		r = kexit(b);				break;
-		//case 98:	r = putc(b);			break;
-		//case 99:	r = getc();				break;
+		case 7:		color = 0xA + (running->pid % 7);
+					r = putc(b);				break;
+		case 8:		r = getc();					break;
+		case 9:		r = fork();					break;
+		case 10:	r = kexec(b);				break;
 		default: printf("%d is not supported currently.\n\r"); break;
 	}
 #ifndef _LAB_3_

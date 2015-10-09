@@ -5,35 +5,27 @@
 #include "ext2.h" //struct information for the filesystem
 
 
-///@brief this is the entry point of the program
-int main(void) {
-	// variable declarations
-	char *name[2];
-	char test[1];
+int load(char *name[], u16 segment) {
 	extern char buf[BlockSize];
 	extern char buf2[BlockSize];
-	u16 i, ino, iblk;
+	u16 iblk, i, ino;
 	u32 *up;
-	GD *gp;
 	INODE *ip;
-	//initialize name
-	name[0] = "boot";
-	name[1] = "mtx0"; 
-	puts("boot mtx0:\n\r");
-	//putc('/'); puts(name[0]); putc('/'); puts(name[1]); //print boot location
 
 	getBlock(2, buf); //check for return value (no error checks currently)
-	gp = (GD *)buf; //get the global descriptor
-	iblk = (u16)gp->bg_inode_table; //start location
-
-	//putc('0' + iblk);
-	//puts("\n\r");
-
+	iblk = (u16)( (GD *)buf )->bg_inode_table; //start location
 
 	getBlock(iblk, buf); //now grabbing that block
 	ip = (INODE *)buf + 1; //getting the inode information
 
-
+	/*temp = strtok(temp, "/");
+	while (temp) {
+		ino = search(ip, temp);
+		if (ino < 2) error();
+		getBlock( INUMBER(ino, iblk), buf);
+		ip = (INODE *)buf + OFFSET(ino);
+		temp = strtok(0, "/");
+	}*/
 
 	for (i = 0; i < 2; i++) {
 		ino = search(ip, name[i]); //search for the different parts of name
@@ -43,7 +35,7 @@ int main(void) {
 	}
 	getBlock( (u16)ip->i_block[12], buf2 );
 	//setes to 0x1000 before incrementing
-	setes(0x1000);
+	setes(segment);
 	//incrementing the es register 11 times (why not just call inces 11 times?)
 	for (i = 0; i < 12; i++) {
 		getBlock( (u16)ip->i_block[i], 0 );
@@ -61,6 +53,18 @@ int main(void) {
 		}
 	}
 
-	puts("\n\rgo?");
+}
+
+///@brief this is the entry point of the program
+int main(void) {
+	// variable declarations
+	char *name[2];
+	name[0] = "boot";
+	name[1] = "mtx0";
+	//initialize name
+	puts("boot mtx ");
+	load(name, 0x1000);
+
+	puts("go?");
 	getc();
 }

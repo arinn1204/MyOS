@@ -11,5 +11,8 @@ int kswitch();
 int wait();
 int exit();
 int invalid(char *);
+int ufork();
+int uexec();
+
 
 #endif

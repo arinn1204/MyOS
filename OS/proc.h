@@ -14,6 +14,14 @@
 #define SLEEP 4
 #define ZOMBIE 5
 
+/*typedef enum STATUS {FREE,
+      READY,
+      RUNNING,
+      STOPPED,
+      SLEEP,
+      ZOMBIE
+} STATUS;
+*/
 struct proc {
             struct proc *next;   
             int  *ksp;               /* saved sp; offset = 2 */
