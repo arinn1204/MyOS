@@ -112,8 +112,9 @@ int fork() {
 
 int kexec(char *filename) {
 	int i, length = 0;
-	char cmd[64], temp[64], *file = temp;
+	char temp[64], cmd[64],  *file = temp;
 	u16 segment = running->uss;
+	for(i=0;i<64;i++)cmd[i]=0;
 
 	while( (cmd[length] = get_byte(running->uss, filename++)) && length++ < 64);
 
@@ -123,17 +124,20 @@ int kexec(char *filename) {
 
 	if ( !load(file, segment) ) return -1;
 
-	for (i = 1; i < 12; i++) put_word(0, segment, -2*i);
-	running->usp = -24 - (2 + strlen(cmd) );
-
-	put_word(segment, segment, -2*12 - (2 + strlen(cmd) ));	//uDS 	= segment
-	put_word(segment, segment, -2*11 - (2 + strlen(cmd) ));	//uES 	= segment
-	put_word(segment, segment, -2*2  - (2 + strlen(cmd) ));	//uCS 	= segment
-	put_word(0x0200,  segment, -2*1  - (2 + strlen(cmd) ));	//uFLAG = 0x0200
+	for (i = 1; i < 12; i++) put_word(0, segment, -2*i - (2 + strlen(cmd)));
+	running->usp = -2*12 - (2 + strlen(cmd) ); //uDS
 	
-	i = strlen(cmd);
-	while( i >= 0 ) put_byte(cmd[i], segment, -(2 + strlen(cmd) - i) );
-	put_byte(cmd, segment, -2 - strlen(cmd) );
+	length = strlen(cmd);
+	
+	put_word(segment, segment, -2*12 - (2 + length ));	//uDS 	= segment
+	put_word(segment, segment, -2*11 - (2 + length ));	//uES 	= segment
+	put_word(segment, segment, -2*2  - (2 + length ));	//uCS 	= segment
+	put_word(0x0200,  segment, -2*1  - (2 + length ));	//uFLAG = 0x0200
+	
+	put_word(cmd, segment, -(2 + length) );
+
+	for (i = 0; cmd[i] ; i++) put_byte(cmd[i], segment, -(length - i));
+	put_byte(0, segment, -(length - i));
 
 
 
