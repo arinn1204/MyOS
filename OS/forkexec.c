@@ -112,7 +112,7 @@ int fork() {
 
 int kexec(char *filename) {
 	int i, length = 0, word;
-	int offset;
+	int offset, evenodd;
 	char temp[64], cmd[64],  *file = temp;
 	u16 segment = running->uss;
 	for(i=0;i<64;i++)cmd[i]=0;
@@ -126,6 +126,7 @@ int kexec(char *filename) {
 
 	length = strlen(cmd);
 
+	evenodd = !(length % 2);
 
 	for(i = 1; i < 13; i++) {
 		switch(i) {
@@ -135,23 +136,23 @@ int kexec(char *filename) {
 			case 12: word = segment; 	break;
 			default: word = 0; 			break;
 		}
-		offset = -2*i - (2 + length);
+		offset = -2*i - (2 + length + evenodd);
 		put_word(word, segment, offset);
 	}
-	running->usp = -2*12 - ( 2 + length );
+	running->usp = -2*12 - ( 2 + length + evenodd );
 
 	//since the pointer has to live in a location, this will be two positions over
 	//hence the -2*-1 instead of -2*0
 	i = -1;
 
-	word = -2*i - (2 + length); 
-	put_word(word, segment, -(2 + length));
+	word = -2*i - (2 + length + evenodd); 
+	put_word(word, segment, -(2 + length + evenodd) );
 
 	for(i = 0; i < length; i++) {
-		put_byte(cmd[i], segment, -(length - i ) );
+		put_byte(cmd[i], segment, -( evenodd + length - i ) );
 	}
 
-	//put_byte(0, segment, 0);
+	if( !(length % 2) )	put_byte(0, segment, -1);
 	
 }
 
