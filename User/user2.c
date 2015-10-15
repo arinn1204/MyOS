@@ -7,10 +7,8 @@ int main(int argc, char *argv[]) {
 	char name[64]; int pid, cmd;
 	int i = 0;
 
-	printf("There are %d parameters: ", argc);
-	while(argv[i]) printf("%s ", argv[i++]);
-
-
+	printf("There are %d parameter(s): ", argc);
+	while(i < argc) printf("| %s |  ", argv[i++]);
 
 	while(1){
 

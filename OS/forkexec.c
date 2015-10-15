@@ -111,7 +111,8 @@ int fork() {
 }
 
 int kexec(char *filename) {
-	int i, length = 0;
+	int i, length = 0, word;
+	int offset;
 	char temp[64], cmd[64],  *file = temp;
 	u16 segment = running->uss;
 	for(i=0;i<64;i++)cmd[i]=0;
@@ -121,26 +122,37 @@ int kexec(char *filename) {
 	cmd[ (length == 64) ? 63 : length ] = 0;
 	strcpy(temp, cmd);
 	file = strtok(temp, " ");
-
 	if ( !load(file, segment) ) return -1;
 
-	for (i = 1; i < 12; i++) put_word(0, segment, -2*i - (2 + strlen(cmd)));
-	running->usp = -2*12 - (2 + strlen(cmd) ); //uDS
-	
 	length = strlen(cmd);
+
+
+	for(i = 1; i < 13; i++) {
+		switch(i) {
+			case 1: word = 0x0200; 		break;
+			case 2: 
+			case 11:
+			case 12: word = segment; 	break;
+			default: word = 0; 			break;
+		}
+		offset = -2*i - (2 + length);
+		put_word(word, segment, offset);
+	}
+	running->usp = -2*12 - ( 2 + length );
+
+	//since the pointer has to live in a location, this will be two positions over
+	//hence the -2*-1 instead of -2*0
+	i = -1;
+
+	word = -2*i - (2 + length); 
+	put_word(word, segment, -(2 + length));
+
+	for(i = 0; i < length; i++) {
+		put_byte(cmd[i], segment, -(length - i ) );
+	}
+
+	//put_byte(0, segment, 0);
 	
-	put_word(segment, segment, -2*12 - (2 + length ));	//uDS 	= segment
-	put_word(segment, segment, -2*11 - (2 + length ));	//uES 	= segment
-	put_word(segment, segment, -2*2  - (2 + length ));	//uCS 	= segment
-	put_word(0x0200,  segment, -2*1  - (2 + length ));	//uFLAG = 0x0200
-	
-	put_word(cmd, segment, -(2 + length) );
-
-	for (i = 0; cmd[i] ; i++) put_byte(cmd[i], segment, -(length - i));
-	put_byte(0, segment, -(length - i));
-
-
-
 }
 
 

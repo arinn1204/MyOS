@@ -115,9 +115,9 @@ int do_exit() {
 
 /**
 */
-int do_wait() {
-	int status, pid;
-	pid = kwait(&status);
+int do_wait(int *status) {
+	int pid;
+	pid = kwait(status);
 	return pid;
 }
 
