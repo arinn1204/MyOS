@@ -15,6 +15,7 @@ CC		:= bcc
 AS		:= as86
 LD		:= ld86
 QEMU		:= qemu-system-i386
+RUN		:= run
 
 CFLAGS	:= -ansi
 LDFLAGS	:= -d /usr/lib/bcc/libc.a
@@ -62,9 +63,9 @@ all: clear
 	sudo umount $(IMAGE_CONTENTS)
 	@echo ""
 	@echo Complete...
-	@echo "#/bin/bash" > ./run
-	@echo "$(QEMU) -fda $(IMAGE) -no-fd-bootchk" >> ./run
-	@chmod 755 ./run
+	@echo "#/bin/bash" > ./$(RUN)
+	@echo "$(QEMU) -fda $(IMAGE) -no-fd-bootchk" >> ./$(RUN)
+	@chmod 755 ./$(RUN)
 
 
 boot: CFLAGS = -ansi -D_BOOT_
@@ -135,4 +136,5 @@ clean:
 cleanall: clean
 	$(RM) $(BOOT_DIR)/$(BOOT) $(KERNEL_DIR)/$(KERNEL)
 	$(RM) $(USER_DIR)/$(USER1) $(USER_DIR)/$(USER2)
+	$(RM) $(RUN)
 
