@@ -29,12 +29,11 @@ int main(int argc, char *argv[]) {
 			case 0:	getpid();	break;
 			case 1:	ps();		break;
 			case 2:	chname();	break;
-			case 3:	kfork();	break;
-			case 4:	kswitch();	break;
-			case 5:	wait();		break;
-			case 6:	ufork();	break;
-			case 7:	uexec();	break;
-			case 8: exit();		break;
+			case 3:	kswitch();	break;
+			case 4:	wait();		break;
+			case 5:	ufork();	break;
+			case 6:	uexec();	break;
+			case 7: exit();		break;
 			default:invalid(name);break;
 		}
 	}

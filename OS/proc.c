@@ -2,7 +2,8 @@
 ///@brief This file contains the necessary files to run the basic processes
 // this file will also contain a sample main file that can be ran in order to show that
 // these functions work. In order for this to happen, the make file must be ran with the "make PROC" command
-
+#include "file.h"
+#include "pipe.h"
 #include "proc.h"
 #include "queue.h"
 #include "kernel.h"
@@ -21,7 +22,6 @@ int body() {
 	extern PROC proc[NPROC];
 	extern int color;
 	extern PROC *running;
-
 	int pid = running->pid;
 	char c;	
 	while(1) {
@@ -84,7 +84,13 @@ int init() {
 
 	extern int nproc;
 
-	PROC *p; int i;
+
+	extern OFT oft[NOFT];
+	extern PIPE pipe[NPIPE];
+
+
+
+	PROC *p; int i, j;
 
 
 	for (i = 0; i < NPROC; i++) {
@@ -95,6 +101,8 @@ int init() {
 		p->priority = 0;
 		p->next = &proc[i + 1];
 		strcpy(p->name, names[i]);
+
+		for(j = 0; j < NFD; j++) p->fd[j] = 0;
 	}
 
 	freeList = &proc[0]; proc[NPROC - 1].next = 0;
@@ -105,6 +113,11 @@ int init() {
 	p->status = READY;
 	running = p;
 	nproc = 1;
+
+
+
+	for(i = 0; i < NOFT; i++) oft[i].refCount = 0;
+	for(i = 0; i < NPIPE; i++) pipe[i].busy = 0;
 
 	printf("Init has now finished.\n");
 }

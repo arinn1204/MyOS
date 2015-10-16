@@ -1,6 +1,7 @@
 /**@file kernel.c
 *@brief something
 */
+#include "file.h"
 #include "proc.h"
 #include "wait.h"
 #include "queue.h"
@@ -109,8 +110,8 @@ int do_kfork() {
 
 /**
 */
-int do_exit() {
-	kexit(0);
+int do_exit(int exit_code) {
+	kexit(exit_code);
 }
 
 /**

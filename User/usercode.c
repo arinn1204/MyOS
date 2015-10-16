@@ -1,13 +1,13 @@
 #include "usercode.h"
 #include "print.h"
 
-char *cmd[]={"getpid", "ps", "chname", "kfork", "switch", "wait", "fork", "exec", "exit", 0};
+char *cmd[]={"getpid", "ps", "chname", "switch", "wait", "fork", "exec", "exit", 0};
 
 int show_menu()
 {
-   printf("***************** Menu *******************************\n");
-   printf("*  ps  chname  kfork  switch  wait  fork  exec  exit *\n");
-   printf("******************************************************\n");
+   printf("***************** Menu ************************\n");
+   printf("*  ps  chname  switch  wait  fork  exec  exit *\n");
+   printf("***********************************************\n");
 }
 
 int find_cmd(char *name)
@@ -25,11 +25,11 @@ int find_cmd(char *name)
 }
 
 int fork() {
-	return syscall(9, 0, 0, 0);
+	return syscall(6, 0, 0, 0);
 }
 
 int exec(char *y) {
-	return syscall(10, y, 0, 0);
+	return syscall(7, y, 0, 0);
 }
 
 
@@ -68,7 +68,7 @@ int chname()
 	printf("\n");
 	syscall(2, s, 0, 0);
 }
-
+/*	DEPRECATED
 int kfork()
 {
 	#ifndef _LAB_3_
@@ -84,16 +84,16 @@ int kfork()
 		//printf("proc %d kforked a child %d\n", getpid(), pid);
 	#endif
 }    
-
+*/
 int kswitch()
 {
 	#ifndef _LAB_3_
 		printf("proc %d enter Kernel to switch proc\n", getpid());
-		syscall(4, 0, 0, 0);
+		syscall(3, 0, 0, 0);
 		printf("proc %d back from Kernel\n", getpid());
 	#else
 		printf("proc "); getpid(); printf(" enter Kernel to switch proc\n");
-		syscall(4, 0, 0, 0);
+		syscall(3, 0, 0, 0);
 		printf("proc "); getpid(); printf(" back from Kernel\n");
 	#endif
 }
@@ -103,14 +103,14 @@ int wait()
 	#ifndef _LAB_3_
 		int child, exitValue;
 		printf("proc %d enter Kernel to wait for a child to die\n", getpid());
-		child = syscall(5, &exitValue, 0, 0);
+		child = syscall(4, &exitValue, 0, 0);
 		printf("proc %d back from wait, dead child=%d ", getpid(), child);
 		if (child >= 0) printf("exitValue=%d", exitValue);
 		printf("\n"); 
 	#else
 		int exitValue;
 		printf("Proc "); getpid(); printf(" enter kernel to wait for child to die.\n");
-		syscall(5, &exitValue, 0, 0);
+		syscall(4, &exitValue, 0, 0);
 		printf("Proc "); getpid(); printf(" back from wait\n");
 		#endif
 } 
@@ -126,7 +126,7 @@ int exit()
 
 int _exit(int exitValue)
 {
-	syscall(6, exitValue, 0, 0);
+	syscall(5, exitValue, 0, 0);
 }
 
 int invalid(char *name)

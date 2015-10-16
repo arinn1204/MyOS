@@ -6,11 +6,11 @@ char *table = "0123456789ABCDEF";
 #ifndef _LAB_3_
 
 int putc(char c) {
-	return syscall(7, c, 0, 0);
+	return syscall(10, c, 0, 0);
 }
 
 char getc() {
-	return syscall(8, 0, 0, 0);
+	return syscall(11, 0, 0, 0);
 }
 
 #endif

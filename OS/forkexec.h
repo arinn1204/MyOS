@@ -4,6 +4,6 @@
 
 PROC *kfork(char *);
 int fork();
-int kexec(char *);
+int exec(char *);
 
 #endif

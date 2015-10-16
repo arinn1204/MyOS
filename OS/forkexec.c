@@ -1,6 +1,6 @@
 
 typedef unsigned short u16;
-
+#include "file.h"
 #include "proc.h"
 #include "forkexec.h"
 #include "queue.h"
@@ -90,7 +90,7 @@ int copyImage(u16 parentSegment, u16 childSegment, u16 size) {
 }
 
 int fork() {
-	int pid; u16 segment;
+	int i,pid; u16 segment;
 
 	PROC *p = kfork(0);
 	if( !p ) return -1;
@@ -106,11 +106,29 @@ int fork() {
 	put_word(segment, 	segment, p->usp+2);			//uES = segment
 	put_word(0, 		segment, p->usp+2*8);		//uAX = 0
 	put_word(segment,	segment, p->usp+2*10);		//uCS = segment
+
+
+	for(i = 0; i < NFD; i++) {
+		if(running->fd[i]) {
+			p->fd[i] = running->fd[i];
+			p->fd[i]->refCount++;
+			if(p->fd[i]->mode == READ_PIPE) {
+				p->fd[i]->pipe_ptr->nreader++;
+			} // end of inner if
+			if(p->fd[i]->mode == WRITE_PIPE) {
+				p->fd[i]->pipe_ptr->nwriter++;
+			} // end of inner if
+		} // end of if running->fd[i]
+
+	} // end for
+
+
+
 	return p->pid;
 
 }
 
-int kexec(char *filename) {
+int exec(char *filename) {
 	int i, length = 0, word;
 	int offset, evenodd;
 	char temp[64], cmd[64],  *file = temp;

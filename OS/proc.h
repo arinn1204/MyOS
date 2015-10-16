@@ -36,6 +36,10 @@ struct proc {
             int event;
             int exitCode;
             char name[32];
+
+            OFT *fd[NFD];
+
+
             int  kstack[SSIZE];     // kmode stack of task
 };
 

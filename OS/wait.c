@@ -1,6 +1,6 @@
 ///@file wait.c
 ///@brief
-
+#include "file.h"
 #include "proc.h"
 #include "wait.h"
 #include "queue.h"
@@ -75,6 +75,7 @@ int kexit(int exitValue) {
 		}
 	}
 
+
 	//record exit code and become ZOMBIE
 	running->exitCode = exitValue;
 	running->status = ZOMBIE;
@@ -84,6 +85,9 @@ int kexit(int exitValue) {
 	if (wakeupP1) {
 		kwakeup(&proc[1]);
 	}
+	
+	//close the opened file descriptors
+	for(i = 0; i < NFD; i++) if(running->fd[i]) close_pipe(i);
 	tswitch();	//give up the CPU
 }
 

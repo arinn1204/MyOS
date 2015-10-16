@@ -8,6 +8,7 @@ typedef unsigned long u32;
 
 #include "fs.h"
 #include "kernel.h"
+#include "file.h"
 #include "proc.h"
 #include "io.h"
 #include "forkexec.h"
@@ -34,7 +35,6 @@ int do_chname(char *str) {
 
 	while( get_byte(segment, str + i ) != 0 && i < 32) {
 		name[i] = get_byte(segment, str + i);
-		putc(name[i++]);
 	}
 
 	name[ i ] = 0;
@@ -58,18 +58,35 @@ int kcinth() {
 	d = get_word(segment, offset + 2*(PA + 3));
 
 	switch(a) {
+		//BASIC FUNCTIONS
 		case 0: 	r = getpid();				break;
 		case 1: 	r = do_ps();				break;
 		case 2:		r = do_chname(b);			break;
-		case 3:		r = kfork("/bin/u1")->pid;	break;
-		case 4:		r = do_tswitch();			break;
-		case 5:		r = kwait(b);				break;
-		case 6:		r = kexit(b);				break;
-		case 7:		color = 0xA + (running->pid % 7);
+		case 3:		r = do_tswitch();			break;
+		case 4:		r = do_wait(&c);
+					put_word(c, segment, b);	break;
+
+		case 5:		r = do_exit(b);				break;
+		case 6:		r = fork();					break;
+		case 7:		r = exec(b);				break;
+
+		//		IO FUNCTIONS
+		case 10:	color = 0xA + (running->pid % NPROC);
 					r = putc(b);				break;
-		case 8:		r = getc();					break;
-		case 9:		r = fork();					break;
-		case 10:	r = kexec(b);				break;
+					
+		case 11:	r = getc();					break;
+		//		END IO
+		
+		//		PIPE FUNCTIONS
+		case 30:	r = kpipe(b);				break;
+		case 31:	r = read_pipe(b, c, d);		break;
+		case 32:	r = write_pipe(b, c, d);	break;
+		case 33:	r = close_pipe(b);			break;
+		case 34:	r = pfd();					break;
+		// 		END PIPE
+
+
+
 		default: printf("%d is not supported currently.\n\r"); break;
 	}
 #ifndef _LAB_3_

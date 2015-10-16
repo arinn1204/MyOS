@@ -1,6 +1,6 @@
 ///@file queue.c
 ///@brief
-
+#include "file.h"
 #include "proc.h"
 #include "queue.h"
 

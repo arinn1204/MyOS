@@ -1,3 +1,4 @@
+#include "file.h"
 #include "proc.h"
 #include "wait.h"
 #include "io.h"

@@ -1,3 +1,4 @@
+#include "file.h"
 #include "proc.h"
 #include "io.h"
 
