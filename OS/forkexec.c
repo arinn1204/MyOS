@@ -1,6 +1,7 @@
 
 typedef unsigned short u16;
 #include "file.h"
+#include "pipe.h"
 #include "proc.h"
 #include "forkexec.h"
 #include "queue.h"

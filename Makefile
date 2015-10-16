@@ -14,6 +14,7 @@ PIPE_EXAMPLE 	:= pipe
 CC		:= bcc
 AS		:= as86
 LD		:= ld86
+QEMU		:= qemu-system-i386
 
 CFLAGS	:= -ansi
 LDFLAGS	:= -d /usr/lib/bcc/libc.a
@@ -49,6 +50,7 @@ PIPE_EX_OBJECTS		:= $(patsubst %.c,%.o,$(patsubst %.s,%.asmo,$(CORE_USER_FILES))
 PIPE_EX_OBJECTS		+= $(patsubst %.c,%.o,$(PIPE_EX_C_FILES))
 
 all: boot kernel USER
+all: clear
 	@echo Copying bootloader,kernel, and user into image
 	dd if=$(BOOT_DIR)/$(BOOT) of=$(IMAGE) bs=1024 count=1 conv=notrunc
 	sudo mount -o loop $(IMAGE) $(IMAGE_CONTENTS)
@@ -57,13 +59,12 @@ all: boot kernel USER
 	sudo cp $(USER_DIR)/$(USER2) $(IMAGE_CONTENTS)/bin/$(USER2)
 	sudo cp $(USER_DIR)/$(PIPE_EXAMPLE) $(IMAGE_CONTENTS)/bin/$(PIPE_EXAMPLE)
 
-
 	sudo umount $(IMAGE_CONTENTS)
 	@echo ""
 	@echo Complete...
-
-run: all
-	qemu -fda $(IMAGE) -no-fd-bootchk
+	@echo "#/bin/bash" > ./run
+	@echo "$(QEMU) -fda $(IMAGE) -no-fd-bootchk" >> ./run
+	@chmod 755 ./run
 
 
 boot: CFLAGS = -ansi -D_BOOT_
@@ -74,6 +75,8 @@ boot: $(BOOT_OBJECTS)
 	@echo ""
 	@echo ""
 
+clear:
+	@clear
 
 kernel: CFLAGS = -ansi -D_LAB_5_ -D_MTXLIB_
 kernel: INCLIB := $(KERNEL_DIR)/mtxlib
@@ -120,9 +123,6 @@ pipe: $(PIPE_EX_OBJECTS)
 	@echo ""
 	@echo ""
 
-
-
-
 %.asmo: %.s
 	$(AS) -o $(patsubst %.s,%.asmo,$<) $<
 
@@ -131,8 +131,6 @@ clean:
 	$(RM) $(KERNEL_OBJECTS)
 	$(RM) $(USER1_OBJECTS)
 	$(RM) $(USER2_OBJECTS)
-
-
 
 cleanall: clean
 	$(RM) $(BOOT_DIR)/$(BOOT) $(KERNEL_DIR)/$(KERNEL)

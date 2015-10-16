@@ -5,6 +5,10 @@
 #define NPIPE 10
 
 
+#define READ_PIPE 4
+#define WRITE_PIPE 5
+
+
 typedef struct pipe {
 	char buf[PSIZE];
 	int head, tail, data, room;
