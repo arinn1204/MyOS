@@ -136,5 +136,5 @@ clean:
 cleanall: clean
 	$(RM) $(BOOT_DIR)/$(BOOT) $(KERNEL_DIR)/$(KERNEL)
 	$(RM) $(USER_DIR)/$(USER1) $(USER_DIR)/$(USER2)
-	$(RM) $(RUN)
+	$(RM) $(RUN) $(USER_DIR)/$(PIPE_EXAMPLE)
 
