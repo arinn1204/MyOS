@@ -1,25 +1,119 @@
 #include "pipe.h"
 #include "file.h"
 #include "proc.h"
+/*
+typedef struct pipe {
+	char buf[PSIZE];
+	int head, tail, data, room;
+	int nreader, nwriter;
+	int busy;
+} PIPE;
+*/
 
-int show_pipe(PIPE *pipe) {
-	int i, j;
+
+int show_pipe(PIPE *pipe) {	
+	//print running procs opened file descriptors
+	int fd[2], k, flag = 0;
+
+	extern OFT oft[NOFT];
+
 	printf("-------------PIPE-CONTENTS----------\n");
-	//actually display the shit, idk what that means though?
+	for(k = 0; k < NFD; k++) {
+		if (!flag && oft[k].pipe_ptr == pipe)	 	fd[0] = k, flag = 1;
+		if (flag && oft[k].pipe_ptr == pipe)		fd[1] = k, flag = 2;
+		if (flag == 2) break;
+	}
+		printf("Pipe: FD = [%d, %d]\n", fd[0], fd[1]);
+		printf("Data: %d Room %d\nWriters: %d Readers: %d\nBuffer: %s\n",
+			pipe->data, pipe->room, pipe->nreader, pipe->nwriter, pipe->buf);
 	printf("------------------------------------\n");
 }
 
 char *MODE[] = {"READ_PIPE", "WRITE_PIPE", 0};
 
 int pfd() {
-	//print running procs opened file descriptors
+	int i;
+	extern PIPE pipe[NPIPE];
+
+	while(pipe[i++].busy) {
+		show_pipe(&pipe[i]);
+	}
+
 }
 
 int read_pipe(int fd, char *buf, int n) {
+	int r = 0;
+	PIPE *pp;
+	OFT *op;
+
+	extern OFT oft[NOFT];
+
+
+	if (n <= 0) {
+		return 0;
+	}
+	if (fd < 0 || fd > NFD) {
+		return -1;
+	}
+
+	op = &oft[fd];
+	pp = op->pipe_ptr;
+
+
+	while(n) {
+
+		while(pp->data) {
+			//but buf is only 10 bytes... so only 10 bytes can be stored at a time?
+			put_byte(pp->buf[r], running->uss, buf + r);
+			pp->data--; pp->room++;
+			r++; n--;
+			if ( n == 0 ) break;
+		}
+		// i read data, wake up whoever slept on pp->room if there is anyone
+		if ( r ) {
+			kwakeup(&pp->room);
+			return r;
+		}
+		// now we know that the pipe has no data remaining
+		if (pp->nwriter) {
+			kwakeup(&pp->room);
+			ksleep(&pp->data);
+			continue;
+		}
+		//theres no writer and no data to read
+		return 0;
+	}
+
 
 }
 
 int write_pipe(int fd, char *buf, int n) {
+	int r = 0;
+	PIPE *pp;
+	OFT *op;
+
+	extern OFT oft[NOFT];
+
+	if (n <= 0) return 0;
+	if (fd < 0 || fd > NFD) return -1;
+
+	op = &oft[fd];
+	pp = op->pipe_ptr;
+
+	while(n) {
+		if ( !pp->nreader ) kexit(BROKEN_PIPE);
+
+		while(pp->room) {
+			pp->buf[r] = get_byte(running->uss, buf + r);
+			pp->data++; pp->room--;
+			r++; n--;
+			if ( n == 0 ) break;
+		}
+
+		kwakeup(&pp->data);
+		if(n == 0) return r;
+		ksleep(&pp->room);
+	}
 
 }
 
@@ -57,13 +151,13 @@ int kpipe(int pd[]) {
 	for(i = 0; i < NOFT; i++) {
 		if (fd[0] != -1 && fd[1] != -1) break;
 		if (oft[i].refCount == 0 ) {
-			if(fd[0] == -1) { //first descriptor
+			if(fd[0] == -1) { //first descriptor ie read
 				fd[0] = i; //read oft
 				oft[i].mode = READ_PIPE;
 				oft[i].refCount++;
 				oft[i].pipe_ptr = p;
 			}
-			else if (fd[1] == -1) { // second descriptor
+			else if (fd[1] == -1) { // second descriptor ie write
 				fd[1] = i;
 				oft[i].mode = WRITE_PIPE;
 				oft[i].refCount++;

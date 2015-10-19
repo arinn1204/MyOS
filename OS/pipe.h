@@ -7,6 +7,7 @@
 
 #define READ_PIPE 4
 #define WRITE_PIPE 5
+#define BROKEN_PIPE 10
 
 
 typedef struct pipe {
