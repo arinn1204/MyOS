@@ -4,7 +4,6 @@
 #include "proc.h"
 #include "queue.h"
 
-#ifndef _MTXLIB_
 /**
 */
 int enqueue(PROC **queue, PROC *p)
@@ -61,6 +60,4 @@ int put_proc(PROC **list, PROC *p) {
     }
 
 }
-
-#endif
 

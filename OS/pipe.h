@@ -10,15 +10,27 @@
 #define BROKEN_PIPE 10
 
 
+
+typedef struct CyclicBuffer {
+	char buffer[PSIZE];
+	int head, tail;
+} CYCLIC;
+
+
 typedef struct pipe {
-	char buf[PSIZE];
-	int head, tail, data, room;
+	struct CyclicBuffer buffer;
+	int data, room;
 	int nreader, nwriter;
 	int busy;
 } PIPE;
 
+
+
 PIPE pipe[NPIPE];
 
+//buffer stuff
+int readFromBuffer(CYCLIC *buf);
+int addToBuffer(CYCLIC *buf, int data);
 
 int pfd();
 int read_pipe(int , char *, int );

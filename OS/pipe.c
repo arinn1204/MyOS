@@ -13,19 +13,20 @@ typedef struct pipe {
 
 int show_pipe(PIPE *pipe) {	
 	//print running procs opened file descriptors
-	int fd[2], k, flag = 0;
-
-	extern OFT oft[NOFT];
+	int k, flag = 0;
+	int fd[2];
+	fd[0] = -1;
+	fd[1] = -1;
 
 	printf("-------------PIPE-CONTENTS----------\n");
 	for(k = 0; k < NFD; k++) {
-		if (!flag && oft[k].pipe_ptr == pipe)	 	fd[0] = k, flag = 1;
-		if (flag && oft[k].pipe_ptr == pipe)		fd[1] = k, flag = 2;
+		if (!flag && oft[k].pipe_ptr == pipe)	 		fd[0] = k, flag = 1;
+		else if (flag && oft[k].pipe_ptr == pipe)		fd[1] = k, flag = 2;
 		if (flag == 2) break;
 	}
 		printf("Pipe: FD = [%d, %d]\n", fd[0], fd[1]);
 		printf("Data: %d Room %d\nWriters: %d Readers: %d\nBuffer: %s\n",
-			pipe->data, pipe->room, pipe->nreader, pipe->nwriter, pipe->buf);
+			pipe->data, pipe->room, pipe->nreader, pipe->nwriter, pipe->buffer.buffer);
 	printf("------------------------------------\n");
 }
 
@@ -35,36 +36,51 @@ int pfd() {
 	int i;
 	extern PIPE pipe[NPIPE];
 
-	while(pipe[i++].busy) {
-		show_pipe(&pipe[i]);
+	while(i < NPIPE) {
+		if(pipe[i].busy) show_pipe(&pipe[i]);
+		i++;
 	}
 
 }
 
+
+int readFromBuffer(CYCLIC *buf) {
+	int ret = 0;
+	int head = buf->head;
+	int tail = buf->tail;
+
+//	printf("Head: %d, Tail: %d, Buffer: %s\n", head, tail, buf->buffer);
+	
+	ret = buf->buffer[head];
+	buf->buffer[head] = 0;
+	buf->head = (head + 1) % PSIZE;
+
+
+
+	return ret;
+}
+
 int read_pipe(int fd, char *buf, int n) {
-	int r = 0;
+	int r = 0, loc = 0;
+	int byte;
 	PIPE *pp;
 	OFT *op;
 
 	extern OFT oft[NOFT];
 
 
-	if (n <= 0) {
-		return 0;
-	}
-	if (fd < 0 || fd > NFD) {
-		return -1;
-	}
+	if (n <= 0) return 0;
+	if (fd < 0 || fd > NFD) return -1;
 
 	op = &oft[fd];
 	pp = op->pipe_ptr;
 
-
 	while(n) {
-
 		while(pp->data) {
 			//but buf is only 10 bytes... so only 10 bytes can be stored at a time?
-			put_byte(pp->buf[r], running->uss, buf + r);
+			//put_byte(pp->buf.buf[pos], running->uss, buf + r);
+			byte = readFromBuffer(&pp->buffer);
+			put_byte(byte, running->uss, buf + r);
 			pp->data--; pp->room++;
 			r++; n--;
 			if ( n == 0 ) break;
@@ -75,7 +91,7 @@ int read_pipe(int fd, char *buf, int n) {
 			return r;
 		}
 		// now we know that the pipe has no data remaining
-		if (pp->nwriter) {
+		if ( pp->nwriter ) {
 			kwakeup(&pp->room);
 			ksleep(&pp->data);
 			continue;
@@ -83,17 +99,28 @@ int read_pipe(int fd, char *buf, int n) {
 		//theres no writer and no data to read
 		return 0;
 	}
+}
 
+int addToBuffer(CYCLIC *buf, int data) {
+	int tail = buf->tail;
+	int head = buf->head;
 
+	buf->buffer[tail] = data;
+	buf->tail = (tail + 1) % PSIZE;
+
+//	printf("Head: %d, Tail: %d, Buffer: %s\n", head, tail, buf->buffer);
+
+	return 0;
 }
 
 int write_pipe(int fd, char *buf, int n) {
 	int r = 0;
+	int byte = 0;
 	PIPE *pp;
 	OFT *op;
 
 	extern OFT oft[NOFT];
-
+	
 	if (n <= 0) return 0;
 	if (fd < 0 || fd > NFD) return -1;
 
@@ -102,14 +129,16 @@ int write_pipe(int fd, char *buf, int n) {
 
 	while(n) {
 		if ( !pp->nreader ) kexit(BROKEN_PIPE);
-
+		
 		while(pp->room) {
-			pp->buf[r] = get_byte(running->uss, buf + r);
+			//pp->buf.buf[pos] = get_byte(running->uss, buf + r);
+			byte = get_byte(running->uss, buf + r);
+			addToBuffer( &pp->buffer, byte);
 			pp->data++; pp->room--;
 			r++; n--;
+
 			if ( n == 0 ) break;
 		}
-
 		kwakeup(&pp->data);
 		if(n == 0) return r;
 		ksleep(&pp->room);
@@ -136,7 +165,7 @@ int kpipe(int pd[]) {
 	for(i = 0; i < NPIPE; i++) {
 		if( ! pipe[i].busy ) { //found an available pipe
 			p = &pipe[i];
-			p->data = p->head = p->tail = 0;
+			p->data = p->buffer.head = p->buffer.tail = 0;
 			p->room = PSIZE;
 			p->busy = p->nreader = p->nwriter = 1;
 			break;

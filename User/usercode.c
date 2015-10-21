@@ -115,11 +115,8 @@ int wait()
 		#endif
 } 
 
-int exit()
+int exit(int exitValue)
 {
-	int exitValue;
-	printf("\nenter an exitValue (0-9) : ");
-	exitValue=(getc()&0x7F) - '0';
 	printf("enter kernel to die with exitValue=%d\n", exitValue);
 	_exit(exitValue);
 }

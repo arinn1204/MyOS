@@ -5,6 +5,7 @@
 int main(int argc, char *argv[]) {
 	int n, pd[2], count = 0;
 	int pid = getpid();
+	char c;
 	char *s = "Hello there!";
 	char line[256];
 
@@ -17,28 +18,26 @@ int main(int argc, char *argv[]) {
 		printf("Parent %d close pd[0]\n", pid);
 		close(pd[0]);
 
-		while(1) {
+		while(count++ < 10) {
 			printf("Parent %d writing to pipe: %s\n", pid, s);
-			write(pd[1], s, strlen(s));
-			count++;
-			if(count > 10) break;
+			n = write(pd[1], s, strlen(s));
 		}
-		close(pd[1]);
+		printf("Parent %d exiting\n", pid);
+		exit(0);
 	}
 	else {
 		pid = getpid();
 		printf("Child %d close pd[1]\n", pid);
 		close(pd[1]);
 
-		while(1) {
+		while(count++ < 10) {
 			printf("Child %d reading from pipe\n", pid);
-			n = read(pd[0], line, 256);
+			if ( (n = read(pd[0], line, 256)) == 0 ) exit(0);
 			line[n] = 0;
 			printf("%d read %d from pipe: %s\n", pid, n, line);
-			count++;
-			if(count > 10) break;
+			getc();
 		}
-		close(pd[0]);
+
 	}
 
 

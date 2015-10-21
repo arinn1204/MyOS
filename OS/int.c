@@ -85,8 +85,6 @@ int kcinth() {
 		case 34:	r = pfd();					break;
 		// 		END PIPE
 
-
-
 		default: printf("%d is not supported currently.\n\r"); break;
 	}
 #ifndef _LAB_3_
