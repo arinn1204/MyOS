@@ -1,6 +1,6 @@
 IMAGE_DIR 		:= Image
 IMAGE 			:= $(IMAGE_DIR)/mtximage
-IMAGE_CONTENTS 	:= $(IMAGE_DIR)/Contents
+IMAGE_CONTENTS 		:= $(IMAGE_DIR)/Contents
 BOOT_DIR 		:= Bootloader
 KERNEL_DIR		:= OS
 USER_DIR 		:= User
@@ -9,22 +9,22 @@ BOOT 			:= boot
 KERNEL 			:= mtx0
 USER1 			:= u1
 USER2			:= u2
-PIPE_EXAMPLE 	:= pipe
+PIPE_EXAMPLE 		:= pipe
 
-CC		:= bcc
-AS		:= as86
-LD		:= ld86
-QEMU		:= qemu-system-i386
-RUN		:= run
+CC			:= bcc
+AS			:= as86
+LD			:= ld86
+QEMU			:= qemu-system-i386
+RUN			:= run
 
-CFLAGS	:= -ansi
-LDFLAGS	:= -d /usr/lib/bcc/libc.a
+CFLAGS			:= -ansi
+LDFLAGS			:= -d /usr/lib/bcc/libc.a
 
 
 # bootloader files
-CORE_BOOT_FILES	:= bs.s main.c
+CORE_BOOT_FILES		:= bs.s main.c
 BOOT_FILES 		:= $(addprefix $(BOOT_DIR)/, $(CORE_BOOT_FILES) io.c)
-BOOT_OBJECTS 	:= $(patsubst %.c,%.o,$(patsubst %.s,%.asmo,$(BOOT_FILES) ) ) #.c -> .o and .s -> .asmo
+BOOT_OBJECTS 		:= $(patsubst %.c,%.o,$(patsubst %.s,%.asmo,$(BOOT_FILES) ) ) #.c -> .o and .s -> .asmo
 
 # Kernel files
 CORE_KERNEL_FILES 	:= $(addprefix $(KERNEL_DIR)/, start.s main.c)
