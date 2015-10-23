@@ -6,7 +6,7 @@ int main(int argc, char *argv[]) {
 	int n, pd[2], count = 0;
 	int pid = getpid();
 	char c;
-	char *s = "Hello there!";
+	char *s = "Hello!";
 	char line[256];
 
 
@@ -21,9 +21,10 @@ int main(int argc, char *argv[]) {
 		while(count++ < 10) {
 			printf("Parent %d writing to pipe: %s\n", pid, s);
 			n = write(pd[1], s, strlen(s));
+			kswitch();
 		}
 		printf("Parent %d exiting\n", pid);
-		exit(0);
+		exit(1);
 	}
 	else {
 		pid = getpid();
@@ -32,7 +33,7 @@ int main(int argc, char *argv[]) {
 
 		while(count++ < 10) {
 			printf("Child %d reading from pipe\n", pid);
-			if ( (n = read(pd[0], line, 256)) == 0 ) exit(0);
+			if ( (n = read(pd[0], line, 256)) == 0 ) exit(2);
 			line[n] = 0;
 			printf("%d read %d from pipe: %s\n", pid, n, line);
 			getc();
