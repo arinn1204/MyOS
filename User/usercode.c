@@ -1,13 +1,13 @@
 #include "usercode.h"
 #include "print.h"
 
-char *cmd[]={"getpid", "ps", "chname", "switch", "wait", "fork", "exec", "exit", 0};
+char *cmd[]={"getpid", "ps", "chname", "switch", "wait", "fork", "exec", "exit", "pipe", "pfd", "close", "read", "write", 0};
 
 int show_menu()
 {
-   printf("***************** Menu ************************\n");
-   printf("*  ps  chname  switch  wait  fork  exec  exit *\n");
-   printf("***********************************************\n");
+   printf("***************** Menu **************************************************\n");
+   printf("*  ps  chname  switch  wait  fork  exec  exit pipe pfd close read write *\n");
+   printf("*************************************************************************\n");
 }
 
 int find_cmd(char *name)
@@ -88,9 +88,9 @@ int kfork()
 int kswitch()
 {
 	#ifndef _LAB_3_
-		printf("proc %d enter Kernel to switch proc\n", getpid());
+		//printf("proc %d enter Kernel to switch proc\n", getpid());
 		syscall(3, 0, 0, 0);
-		printf("proc %d back from Kernel\n", getpid());
+		//printf("proc %d back from Kernel\n", getpid());
 	#else
 		printf("proc "); getpid(); printf(" enter Kernel to switch proc\n");
 		syscall(3, 0, 0, 0);

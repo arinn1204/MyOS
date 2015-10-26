@@ -21,7 +21,7 @@ char getc() {
 int gets(char str[ ]) {
   char c; //character being received by BIOS
   int index = 0; //index variable used to loop through str
-  while( ( c = getc() ) != '\r' ) //loop through until an enter is received
+  while( ( c = getc() ) != '\r' ) //loop through until an enter is received or until buffer is full
     str[index++] = c, putc(c); //assign location to string at index this will also print to the screen what is being typed
 
   str[index] = 0; //make sure the last character is a NULL

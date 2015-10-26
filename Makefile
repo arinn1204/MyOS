@@ -63,7 +63,9 @@ all: clear
 	sudo umount $(IMAGE_CONTENTS)
 	@echo ""
 	@echo Complete...
+	@echo Creating run executable
 	@echo "#/bin/bash" > ./$(RUN)
+	@echo clear >> ./$(RUN)
 	@echo "$(QEMU) -fda $(IMAGE) -no-fd-bootchk" >> ./$(RUN)
 	@chmod 755 ./$(RUN)
 
