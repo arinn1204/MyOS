@@ -1,6 +1,7 @@
 #include "file.h"
 #include "proc.h"
 #include "io.h"
+#include "video.h"
 
 char *table = "0123456789ABCDEF";
 

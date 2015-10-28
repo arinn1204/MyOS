@@ -2,30 +2,42 @@
 #include "proc.h"
 #include "wait.h"
 #include "io.h"
+#include "video.h"
 #include "int.h"
 
-int int80h();
+int int80h(); int tinth();
 
 
 int procSize = sizeof( PROC );
 
-#ifndef _MTXLIB_
 
-int color = 0x0A;
+void setInts() {
+	set_vec(80, int80h);
+	lock();
+	set_vec(8, tinth);
+	timer_init();
+	unlock();
+}
 
-#endif
+void MTXInit() {
 
-int main() {
-	extern PROC *readyQueue;
-	extern PROC *running;
-	extern PROC proc[NPROC];
+	//initialize the screen
+	vid_init();
 
 	printf("\n\n");
 	printf("MTX Starting in main\n\r");
 	init();
 	printf("Init complete\n\r");
-	set_vec(80, int80h);
-	
+	setInts();
+
+}
+
+
+int main() {
+	extern PROC *readyQueue;
+	extern PROC *running;
+	extern PROC proc[NPROC];
+	MTXInit();
 	kfork("/bin/u1");
 
 	printf("P%d is now going to enter infinite loop!\n", running->pid);

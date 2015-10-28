@@ -94,3 +94,16 @@ int kcinth() {
 	return 0;
 }
 
+int thandler() {
+	extern u16 tick;
+	extern PROC *running;
+
+	tick++;
+	tick %= 60;
+	if(tick == 0) printf("Running timer interrupt in: %c mode\n", running->inkmode ? 'K' : 'U');
+
+	out_byte(0x20, 0x20);
+
+}
+
+

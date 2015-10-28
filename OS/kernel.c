@@ -83,8 +83,10 @@ int chname(char *newname) {
 /**
 */
 int set_vec(unsigned short vector, unsigned short handler) {
-	put_word(handler, 0, vector << 2);
-	put_word(0x1000, 0, (vector << 2) + 2);
+	unsigned short cs, location;
+	location = vector << 2;
+	put_word(handler, 0, location);
+	put_word(0x1000, 0, location + 2);
 }
 
 

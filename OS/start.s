@@ -1,13 +1,7 @@
 !----------------- proc.s file -----------------------------------------------
-        .globl _main,_proc,_procSize,_running   ! IMPORT these
-        !----- USER MODE -------------
-        .globl _int80h, _goUmode ! EXPORT functions
-        .globl _kcinth ! IMPORT functions
-
-
-        ! ------- TESTING ---------
-        .globl _putc
-
+        .globl _main,_proc,_procSize   ! IMPORT these
+        .globl _goUmode, _running, _ireturn
+      
 	MTXSEG = 0x1000
 	jmpi start, MTXSEG
 
@@ -25,45 +19,27 @@ start:
 
 dead:	jmp dead                        ! loop if main() ever returns
 
-	
-
-! these are for KUMODE
 
 
-_int80h:
-	push ax
-	push bx
-	push cx
-	push dx
-	push bp
-	push si
-	push di
-	push es
-	push ds
-	push cs
-	pop ds
+USS = 4
+USP = 6
+INK = 8
 
-    USS = 4
-    USP = 6
-	mov bx, _running
-	mov USS[bx], ss
-	mov USP[bx], sp
-
-	mov ax, ds
-	mov es, ax
-	mov ss, ax
-	mov sp,bx
-	add sp,_procSize
-	call _kcinth
-	jmp _goUmode
-
+_ireturn:
 _goUmode:
 	cli
 	mov bx,_running
+
+	dec INK[bx]
+	cmp INK[bx], #0
+	jg xkmode
+
+
 	mov ax,USS[bx]
 	mov ss,ax
 	mov sp,USP[bx]
-	
+
+xkmode:	
 	pop ds
 	pop es
 	pop di
@@ -74,5 +50,3 @@ _goUmode:
 	pop bx
 	pop ax
 	iret
-   
-!------------------------------------------------------------------------

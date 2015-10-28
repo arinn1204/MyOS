@@ -2,5 +2,7 @@
 #define _INT_H
 
 int kcinth();
+int thandler();
+
 
 #endif

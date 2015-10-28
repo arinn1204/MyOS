@@ -96,6 +96,7 @@ int init() {
 	for (i = 0; i < NPROC; i++) {
 		p = &proc[i];
 		p->pid = i;
+		p->inkmode = 1;
 		p->ppid = -1;
 		p->status = FREE;
 		p->priority = 0;

@@ -1,4 +1,4 @@
-.globl _putc,_getc,_color,_readfd
+.globl _getc,_readfd
 
 
 
@@ -19,19 +19,6 @@ _readfd:
 
         pop  bp                
 	    ret
-
-
-_putc:           
-        push   bp
-        mov    bp,sp
-	
-        movb   al,4[bp]        ! get the char into aL
-        movb   ah,#14          ! aH = 14
-        mov     bx,_color
-        int    0x10            ! call BIOS to display the char
-
-        pop    bp
-        ret
 
 _getc:
         xorb   ah,ah           ! clear ah

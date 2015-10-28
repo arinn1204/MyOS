@@ -1,6 +1,6 @@
 IMAGE_DIR 		:= Image
 IMAGE 			:= $(IMAGE_DIR)/mtximage
-IMAGE_CONTENTS 		:= $(IMAGE_DIR)/Contents
+IMAGE_CONTENTS 	:= $(IMAGE_DIR)/Contents
 BOOT_DIR 		:= Bootloader
 KERNEL_DIR		:= OS
 USER_DIR 		:= User
@@ -9,27 +9,28 @@ BOOT 			:= boot
 KERNEL 			:= mtx0
 USER1 			:= u1
 USER2			:= u2
-PIPE_EXAMPLE 		:= pipe
+PIPE_EXAMPLE 	:= pipe
 
-CC			:= bcc
-AS			:= as86
-LD			:= ld86
+CC				:= bcc
+AS				:= as86
+LD				:= ld86
 QEMU			:= qemu-system-i386
-RUN			:= run
+RUN				:= run
 
 CFLAGS			:= -ansi
 LDFLAGS			:= -d /usr/lib/bcc/libc.a
+ASFLAGS			:= 
 
 
 # bootloader files
 CORE_BOOT_FILES		:= bs.s main.c
-BOOT_FILES 		:= $(addprefix $(BOOT_DIR)/, $(CORE_BOOT_FILES) io.c)
+BOOT_FILES 			:= $(addprefix $(BOOT_DIR)/, $(CORE_BOOT_FILES) io.c)
 BOOT_OBJECTS 		:= $(patsubst %.c,%.o,$(patsubst %.s,%.asmo,$(BOOT_FILES) ) ) #.c -> .o and .s -> .asmo
 
 # Kernel files
 CORE_KERNEL_FILES 	:= $(addprefix $(KERNEL_DIR)/, start.s main.c)
-KERNEL_C_FILES 		:= $(addprefix $(KERNEL_DIR)/, forkexec.c fs.c int.c io.c kernel.c pipe.c proc.c queue.c wait.c)
-KERNEL_S_FILES		:= $(addprefix $(KERNEL_DIR)/, tswitch.s reg.s screen.s)
+KERNEL_C_FILES 		:= $(addprefix $(KERNEL_DIR)/, forkexec.c fs.c int.c io.c kernel.c pipe.c proc.c queue.c timer.c video.c wait.c)
+KERNEL_S_FILES		:= $(addprefix $(KERNEL_DIR)/, int.s tswitch.s reg.s io.s)
 KERNEL_OBJECTS 		:= $(patsubst %.c,%.o,$(patsubst %.s,%.asmo,$(CORE_KERNEL_FILES) ) )
 KERNEL_OBJECTS		+= $(patsubst %.c,%.o,$(KERNEL_C_FILES)) $(patsubst %.s,%.asmo,$(KERNEL_S_FILES))
 
@@ -127,13 +128,14 @@ pipe: $(PIPE_EX_OBJECTS)
 	@echo ""
 
 %.asmo: %.s
-	$(AS) -o $(patsubst %.s,%.asmo,$<) $<
+	$(AS) $(ASFLAGS) -o $(patsubst %.s,%.asmo,$<) $<
 
 clean:
 	$(RM) $(BOOT_OBJECTS)
 	$(RM) $(KERNEL_OBJECTS)
 	$(RM) $(USER1_OBJECTS)
 	$(RM) $(USER2_OBJECTS)
+	$(RM) $(PIPE_EX_OBJECTS)
 
 cleanall: clean
 	$(RM) $(BOOT_DIR)/$(BOOT) $(KERNEL_DIR)/$(KERNEL)
