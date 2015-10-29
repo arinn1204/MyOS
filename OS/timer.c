@@ -18,6 +18,7 @@ int unlock();
 typedef unsigned short u16;
 #include "timer.h"
 
+int uptime;
 
 int enable_irq(u16 irq_nr) {
 	lock();
@@ -25,13 +26,16 @@ int enable_irq(u16 irq_nr) {
 }
 
 int timer_init() {
-	extern u16 tick;
 	printf("Timer init..\n");
-	tick = 0;
 	out_byte(TIMER_MODE, SQUARE_WAVE);
 	out_byte(TIMER0, TIMER_COUNT);		//set timer low byte
 	out_byte(TIMER0, TIMER_COUNT >> 8); //set timer high byte
 	enable_irq(TIMER_IRQ);
 }
 
+
+int tsleep(int seconds) {
+	int sleepsec = uptime + seconds;
+	ksleep(sleepsec);
+}
 

@@ -14,7 +14,9 @@ start:
 	
 	mov     sp,#_proc               ! sp -> proc[0]
 	add     sp,_procSize            ! sp -> proc[0]s HIGH END
-
+	mov     ax,#0x0003
+    int     #0x10
+    
 	call _main                      ! call main() in C
 
 dead:	jmp dead                        ! loop if main() ever returns

@@ -10,7 +10,6 @@ int int80h(); int tinth();
 
 int procSize = sizeof( PROC );
 
-
 void setInts() {
 	set_vec(80, int80h);
 	lock();
@@ -37,8 +36,14 @@ int main() {
 	extern PROC *readyQueue;
 	extern PROC *running;
 	extern PROC proc[NPROC];
+	int i;
+
 	MTXInit();
-	kfork("/bin/u1");
+	#ifdef _SLEEPER_
+		for(i = 0; i < 5; i++) kfork("/bin/u1");
+	#else
+		kfork("/bin/u1");
+	#endif
 
 	printf("P%d is now going to enter infinite loop!\n", running->pid);
 	while(1) {
@@ -46,6 +51,6 @@ int main() {
 		while( ! readyQueue);
 		printf("P%d is now going to switch!\n", running->pid);
 		tswitch();
-		printf("p%d is now running\n", running->pid);
+		printf("P%d is now running\n", running->pid);
 	}
 }

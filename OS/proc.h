@@ -24,11 +24,12 @@
 */
 struct proc {
             struct proc *next;   
-            int  *ksp;               /* saved sp; offset = 2 */
+            int *ksp;                /* saved sp; offset = 2 */
             int uss;                 /* usermode stack segment, offset = 4 */
             int usp;                 /* usermode stack pointer, offset = 6 */
             int inkmode;
             
+            int  timer;
             int  pid;
             int  status;            /* READY|DEAD, etc */
             int  ppid;

@@ -1,13 +1,14 @@
 #include "usercode.h"
 #include "print.h"
 
-char *cmd[]={"getpid", "ps", "chname", "switch", "wait", "fork", "exec", "exit", "pipe", "pfd", "close", "read", "write", 0};
+char *cmd[]={"getpid", "ps", "chname", "switch", "wait", "fork", "exec", "exit", "pipe", "pfd", "close", "read", "write", "sleep", 0};
 
 int show_menu()
 {
-   printf("***************** Menu **************************************************\n");
-   printf("*  ps  chname  switch  wait  fork  exec  exit pipe pfd close read write *\n");
-   printf("*************************************************************************\n");
+   printf("***************** Menu ************************\n");
+   printf("*  ps  chname  switch  wait  fork  exec  exit *\n");
+   printf("*  pipe   pfd   close   read   write   sleep  *\n");
+   printf("***********************************************\n");
 }
 
 int find_cmd(char *name)
@@ -53,6 +54,24 @@ int uexec() {
 int getpid()
 {
 	syscall(0, 0, 0, 0);
+}
+
+int getppid() {
+	syscall(8, 0, 0, 0);
+}
+
+int sleep(int seconds) {
+	syscall(40, seconds, 0, 0);
+}
+
+int usleep() {
+	int seconds;
+	char temp[5];
+	printf("How many seconds to sleep? ");
+	gets(temp);
+	seconds = atoi(temp);
+	printf("\nSleeping for %d seconds..\n", seconds);
+	sleep(seconds);
 }
 
 int ps()

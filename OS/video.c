@@ -11,8 +11,8 @@
 #define CURSOR 			14
 
 #define LINE_WIDTH 		80
-#define SCR_LINE 		25
-#define SCR_BYTES 		4000
+#define SCR_LINE 		24
+#define SCR_BYTES 		SCR_LINE*LINE_WIDTH
 
 #define CURSOR_SHAPE 	15
 
@@ -33,19 +33,20 @@ int color = HGREEN;
 int org,row,column;
 
 void set_vdc(u16 reg, u16 val) {
-//	lock();
+	lock();
 	out_byte(VDC_INDEX, reg);
 	out_byte(VDC_DATA, (val >> 8) & 0xFF);
 	out_byte(VDC_INDEX, reg + 1);
 	out_byte(VDC_DATA, val & 0xFF);
-//	unlock();
+	unlock();
 }
 
 
 
 int vid_init() {
 	int i, w;
-	org = row = column = 0;
+	org = column = 0;
+	row = 1;
 	set_vdc(CURSOR_SIZE, CURSOR_SHAPE);
 	set_vdc(VID_ORG, 0);
 	set_vdc(CURSOR, 0);
@@ -64,18 +65,16 @@ int scroll() {
 	offset = org + SCR_BYTES + 2*LINE_WIDTH;
 	if(offset <= vidmask) 
 		org += 2*LINE_WIDTH;
-
 	else { 
 		for(i = 0; i < (SCR_LINE - 1)*LINE_WIDTH; i++)
-			put_word(get_word(base, org+160+2*i), base, 2*i );
+			put_word(get_word(base, org+2*LINE_WIDTH+2*i), base, 2*i );
 		org = 0;
 	}
 	offset = org + 2*(SCR_LINE - 1)*LINE_WIDTH;
 
 	w = 0x0C00;
-	for(i = 0; i < LINE_WIDTH; i++) {
+	for(i = 0; i < LINE_WIDTH; i++)
 		put_word(w, base, offset + 2*i);
-	}
 	set_vdc(VID_ORG, org >> 1);
 }
 
@@ -87,7 +86,7 @@ int putc(char c) {
 		case '\n':
 			row++;
 			if (row >= SCR_LINE) {
-				row = 24;
+				row = SCR_LINE - 1;
 				scroll();
 			}
 			pos = 2*(row*LINE_WIDTH + column);
@@ -132,4 +131,28 @@ int putc(char c) {
 	}
 	return 0;
 }
+
+int displayTime(int hour, int minute, int second) {
+	int oldrow = 	row;
+	int oldcolumn = column;
+	int oldorg = 	org;
+	int oldoff = 	offset;
+	int oldclr = 	color;
+
+
+	color = HGREEN;
+	column = LINE_WIDTH - 9;
+	row = SCR_LINE;
+
+	printf( (hour < 10) ? "0%d:" : "%d:", hour);
+	printf( (minute < 10) ? "0%d:" : "%d:", minute);
+	printf( (second < 10) ? "0%d" : "%d", second);
+
+	column = 	oldcolumn;
+	row = 		oldrow;
+	org = 		oldorg;
+	offset = 	oldoff;
+	color = 	oldclr;
+}
+
 

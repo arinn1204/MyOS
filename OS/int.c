@@ -15,6 +15,7 @@ typedef unsigned long u32;
 
 #define AX 8
 
+
 #ifndef _LAB_3_
 
 	#define PA 13
@@ -59,7 +60,7 @@ int kcinth() {
 
 	switch(a) {
 		//BASIC FUNCTIONS
-		case 0: 	r = getpid();				break;
+		case 0: 	r = running->pid;			break;
 		case 1: 	r = do_ps();				break;
 		case 2:		r = do_chname(b);			break;
 		case 3:		r = do_tswitch();			break;
@@ -69,7 +70,7 @@ int kcinth() {
 		case 5:		r = do_exit(b);				break;
 		case 6:		r = fork();					break;
 		case 7:		r = exec(b);				break;
-
+		case 8:		r = running->ppid;			break;
 		//		IO FUNCTIONS
 		case 10:	color = 0xA + (running->pid % NPROC);
 					r = putc(b);				break;
@@ -84,6 +85,8 @@ int kcinth() {
 		case 33:	r = close_pipe(b);			break;
 		case 34:	r = pfd();					break;
 		// 		END PIPE
+		//TIME BASED FUNCTIONS
+		case 40:	r = tsleep(b);				break;
 
 		default: printf("%d is not supported currently.\n\r"); break;
 	}
@@ -95,14 +98,35 @@ int kcinth() {
 }
 
 int thandler() {
-	extern u16 tick;
 	extern PROC *running;
+	extern int uptime; 
 
-	tick++;
-	tick %= 60;
-	if(tick == 0) printf("Running timer interrupt in: %c mode\n", running->inkmode ? 'K' : 'U');
+	static int hour = 0;
+	static int minute = 0;
+	static int second = 0;
+	static int tick = 0;
 
+	if( (tick = (tick + 1) % 60) == 0 ) { // every second this will be true, the clock is at 60Hz
+		running->timer--;
+		uptime++;
+		kwakeup(uptime);
+		if ( (second = (second + 1) % 60) == 0 ) {
+			if ( (minute = (minute + 1) % 60) == 0 ) {
+				if ( (hour = (hour + 1) % 24) == 0 ) {
+
+				}
+			}
+		}
+		//make sure inside of tick if statement so it'll only happen once per second
+		displayTime(hour, minute, second);
+	}
 	out_byte(0x20, 0x20);
+
+	//switch proc if timer == 0 and not in kmode
+	//this kernel is a single proc kernel, which is why it must be in usermode
+	//if the timer were to be used
+	//currently the timer has the set up, but does not have an implementation
+	if(!running->timer && !running->inkmode) tswitch();
 
 }
 

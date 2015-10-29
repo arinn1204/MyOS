@@ -7,14 +7,6 @@
 #include "queue.h"
 #include "io.h"
 
-int getpid() {
-	extern PROC *running;
-	#ifdef _LAB_3_
-		printf("%d",running->pid);
-	#else
-		return running->pid;
-	#endif
-}
 
 int maxName() {
 	extern PROC proc[NPROC];

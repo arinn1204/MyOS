@@ -51,6 +51,9 @@ PIPE_EX_C_FILES		:= $(addprefix $(USER_DIR)/, pipe_example.c )
 PIPE_EX_OBJECTS		:= $(patsubst %.c,%.o,$(patsubst %.s,%.asmo,$(CORE_USER_FILES)))
 PIPE_EX_OBJECTS		+= $(patsubst %.c,%.o,$(PIPE_EX_C_FILES))
 
+
+
+
 all: boot kernel USER
 all: clear
 	@echo Copying bootloader,kernel, and user into image
@@ -71,6 +74,8 @@ all: clear
 	@chmod 755 ./$(RUN)
 
 
+
+
 boot: CFLAGS = -ansi -D_BOOT_
 boot: $(BOOT_OBJECTS)
 	@echo Linking the bootloader together.....
@@ -82,7 +87,7 @@ boot: $(BOOT_OBJECTS)
 clear:
 	@clear
 
-kernel: CFLAGS = -ansi -D_LAB_5_ -D_MTXLIB_
+kernel: CFLAGS = -ansi -D_LAB_6_ -D_MTXLIB_
 kernel: INCLIB := $(KERNEL_DIR)/mtxlib
 kernel: GETSIZE := stat $(KERNEL_DIR)/$(KERNEL) | grep Size | awk '{print $$2}'
 kernel: $(KERNEL_OBJECTS)
@@ -94,10 +99,10 @@ kernel: $(KERNEL_OBJECTS)
 	@echo ""
 
 
-USER: user1 user2 pipe
+USER: user1 user2 pipe 
 
 
-user1: CFLAGS = -ansi -D_LAB_5_
+user1: CFLAGS = -ansi -D_LAB_6_
 user1: LDFLAGS = /usr/lib/bcc/libc.a
 user1: INCLIB := 
 user1: $(USER1_OBJECTS)
@@ -107,7 +112,7 @@ user1: $(USER1_OBJECTS)
 	@echo ""
 	@echo ""
 
-user2: CFLAGS = -ansi -D_LAB_5_
+user2: CFLAGS = -ansi -D_LAB_6_
 user2: LDFLAGS = /usr/lib/bcc/libc.a
 user2: INCLIB := 
 user2: $(USER2_OBJECTS)
@@ -117,7 +122,7 @@ user2: $(USER2_OBJECTS)
 	@echo ""
 	@echo ""
 
-pipe: CFLAGS = -ansi -D_LAB_5_
+pipe: CFLAGS = -ansi -D_LAB_6_
 pipe: LDFLAGS = /usr/lib/bcc/libc.a
 pipe: INCLIB :=
 pipe: $(PIPE_EX_OBJECTS)
@@ -126,6 +131,7 @@ pipe: $(PIPE_EX_OBJECTS)
 	@echo Pipe complete
 	@echo ""
 	@echo ""
+
 
 %.asmo: %.s
 	$(AS) $(ASFLAGS) -o $(patsubst %.s,%.asmo,$<) $<

@@ -13,9 +13,17 @@ int main(int argc, char *argv[]) {
 
 		printf("\n----------------------------------------------\n");
 		#ifndef _LAB_3_
-			printf("I am proc %d in U mode: running segment=%x\n",getpid(), getcs());
+			printf("I am proc %d in U mode with ppid %d: running segment=%x\n",getpid(), getppid(), getcs());
 		#else
 			printf("I am proc "); getpid(); printf(" in U mode: running segment=%x\n", getcs());
+		#endif
+
+		#ifdef _SLEEPER_
+			while(1) {
+				printf("PID: %d PPID: %d\n", getpid(), getppid());
+				sleep(5);
+				return 0;
+			}
 		#endif
 
 		show_menu();
@@ -40,6 +48,7 @@ int main(int argc, char *argv[]) {
 			case 10:	uclose();	break;
 			case 11:	uread();	break;
 			case 12:	uwrite();	break;
+			case 13:	usleep();	break;
 			default:invalid(name);break;
 		}
 	}
