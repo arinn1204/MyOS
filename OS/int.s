@@ -3,8 +3,8 @@
 .globl _procSize, _running
 .globl _ireturn, _lock, _unlock, _in_byte, _out_byte
 
-.globl _int80h, _tinth ! #EXPORT the interrupt handlers
-.globl _kcinth, _thandler ! #IMPORT C interrupt handlers
+.globl _int80h, _tinth, _kbinth ! #EXPORT the interrupt handlers
+.globl _kcinth, _thandler, _kbhandler ! #IMPORT C interrupt handlers
 
 
 
@@ -54,7 +54,7 @@ MEND
 
 _int80h: INTH kcinth
 _tinth:  INTH thandler
-
+_kbinth: INTH kbhandler
 
 
 _lock:
