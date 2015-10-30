@@ -65,12 +65,15 @@ int scheduler() {
 	extern PROC *running;
 	extern PROC *readyQueue;
 	extern int rflag;
-
+	lock();
+	running->timer = 5;
 	if (running->status == READY) {
 		enqueue(&readyQueue, running);
 	}
 	running = dequeue(&readyQueue);
 	rflag = 0;
+	running->timer = 5;
+	unlock();
 
 }
 char *names[] = {"Sun", "Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Neptune", "Uranus", 0};
@@ -98,6 +101,7 @@ int init() {
 		p->pid = i;
 		p->inkmode = 1;
 		p->ppid = -1;
+		p->timer = -1;
 		p->status = FREE;
 		p->priority = 0;
 		p->next = &proc[i + 1];

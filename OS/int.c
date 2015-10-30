@@ -119,6 +119,7 @@ int thandler() {
 		}
 		//make sure inside of tick if statement so it'll only happen once per second
 		displayTime(hour, minute, second);
+		//if(running->timer <= 0 && running->inkmode > 1) tswitch();
 	}
 	out_byte(0x20, 0x20);
 
@@ -126,7 +127,7 @@ int thandler() {
 	//this kernel is a single proc kernel, which is why it must be in usermode
 	//if the timer were to be used
 	//currently the timer has the set up, but does not have an implementation
-	if(!running->timer && !running->inkmode) tswitch();
+	
 
 }
 

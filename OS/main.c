@@ -23,7 +23,7 @@ void MTXInit() {
 	//initialize the screen
 	vid_init();
 
-	printf("\n\n");
+	printf("\n");
 	printf("MTX Starting in main\n\r");
 	init();
 	printf("Init complete\n\r");

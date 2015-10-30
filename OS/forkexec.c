@@ -47,7 +47,7 @@ PROC *kfork(char *filename) {
 	p->priority = 1;
 	p->ppid = running->pid;
 	p->parent = &proc[running->pid];
-	p->timer = -1;
+	p->timer = 5;
 	for(i = 1; i <= ADDR_COUNT; i++) {
 		p->kstack[SSIZE - i] = 0;
 	}

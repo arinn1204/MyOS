@@ -55,7 +55,8 @@ int vid_init() {
 	for(i = 0; i < SCR_LINE*LINE_WIDTH; i++)	
 		put_word(w, base, 2*i);
 
-	printf("Video init complete..\n");
+	printf("Video init complete..");
+	displayTime(0,0,0);
 }
 
 int scroll() {
@@ -138,7 +139,7 @@ int displayTime(int hour, int minute, int second) {
 	int oldorg = 	org;
 	int oldoff = 	offset;
 	int oldclr = 	color;
-
+	int i, w = 0x0C00;
 
 	color = HGREEN;
 	column = LINE_WIDTH - 9;
@@ -153,6 +154,7 @@ int displayTime(int hour, int minute, int second) {
 	org = 		oldorg;
 	offset = 	oldoff;
 	color = 	oldclr;
+	set_vdc(CURSOR, offset >> 1);
 }
 
 

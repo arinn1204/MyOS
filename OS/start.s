@@ -36,7 +36,6 @@ _goUmode:
 	cmp INK[bx], #0
 	jg xkmode
 
-
 	mov ax,USS[bx]
 	mov ss,ax
 	mov sp,USP[bx]

@@ -27,7 +27,7 @@ struct proc {
             int *ksp;                /* saved sp; offset = 2 */
             int uss;                 /* usermode stack segment, offset = 4 */
             int usp;                 /* usermode stack pointer, offset = 6 */
-            int inkmode;
+            int inkmode;             /* Kernel mode flag, offset = 8 */
             
             int  timer;
             int  pid;
