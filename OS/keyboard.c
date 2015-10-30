@@ -21,22 +21,27 @@ char unshift[NSCAN] = {
 	'b','n','m',',','.','/', 0,'*',		 0, ' '       
 };
 
+#include "file.h"
+#include "pipe.h"
+#include "io.h"
+#include "wait.h"
+#include "proc.h"
+#include "keyboard.h"
+
+
 typedef struct kbd {
 	char buf[KBLEN];
 	int head, tail;
-	int data;
+	SEMAPHORE data;
 } KBD;
 
 
 KBD kbd;
 
-#include "io.h"
-#include "wait.h"
-
 
 int kbd_init() {
 	printf("KB Init....\n");
-	kbd.data = 0;
+	kbd.data.data = 0;
 	kbd.head = kbd.tail = 0;
 }
 
@@ -55,7 +60,7 @@ int kbhandler() {
 	}
 
 	c = unshift[scode];
-	if(kbd.data >= KBLEN) {
+	if(kbd.data.data >= KBLEN) {
 		printf("%c\n", 0x07);
 		goto out;
 	}
@@ -63,9 +68,10 @@ int kbhandler() {
 	kbd.buf[kbd.tail++] = c;
 	kbd.tail %= KBLEN;
 
-	kbd.data++;
-	kwakeup(&kbd.data);
-
+	kbd.data.data++;
+	//need a P or a V in here
+	//what the fuck are those??
+	//was a wakeup
 
 	out:
 		out_byte(0x20, 0x20);
@@ -76,15 +82,16 @@ int getc() {
 
 	lock();
 
-	while(kbd.data <= 0) {
+	while(kbd.data.data <= 0) {
 		unlock();
-		ksleep(&kbd.data);
+		//was a ksleep on data
+		//need a P or a V here. Again, wtf?
 		lock();
 	}
 
 	c = kbd.buf[kbd.head++] & 0x7F;
 	kbd.head %= KBLEN;
-	kbd.data--;
+	kbd.data.data--;
 
 	unlock();
 	return c;
