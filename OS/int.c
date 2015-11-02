@@ -121,7 +121,7 @@ int thandler() {
 		//make sure inside of tick if statement so it'll only happen once per second
 		displayTime(hour, minute, second);
 	}
-	if(running->timer <= 0 && running->inkmode > 1) out_byte(0x20, 0x20), tswitch();
+	if(running->timer <= 0 && running->inkmode == 1) { out_byte(0x20, 0x20); tswitch(); }
 	else out_byte(0x20, 0x20);
 
 	//switch proc if timer == 0 and not in kmode
