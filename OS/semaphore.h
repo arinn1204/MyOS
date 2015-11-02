@@ -7,8 +7,8 @@ typedef struct semaphore {
 	PROC *queue;
 } SEMAPHORE;
 
-int wait(PROC *queue);
-int signal(PROC *queue);
+int swait(PROC *queue);
+int ssignal(PROC *queue);
 
 int P(SEMAPHORE *s);
 int V(SEMAPHORE *s);

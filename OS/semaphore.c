@@ -9,7 +9,7 @@
 #include "semaphore.h"
 #include "queue.h"
 
-int wait(PROC *queue) {
+int swait(PROC *queue) {
 	extern PROC *running;
 	printf("Running address: %x\n", running);
 	
@@ -18,7 +18,7 @@ int wait(PROC *queue) {
 	tswitch();
 }
 
-int signal(PROC *queue) {
+int ssignal(PROC *queue) {
 	PROC *p;
 	extern PROC *readyQueue;
 
@@ -34,7 +34,7 @@ int P(SEMAPHORE *s) {
 	int sr = int_off();
 	s->data--;
 	printf("Process Blocked, Data: %d\n", s->data);
-	if(s->data  <= 0) wait(s->queue);
+	if(s->data  <= 0) swait(s->queue);
 	int_on(sr);
 }
 
@@ -42,7 +42,7 @@ int V(SEMAPHORE *s) {
 	int sr = int_off();
 	s->data++;
 	printf("Process Dequeued, Data: %d\n", s->data);
-	if(s->data <= 0) signal(s->queue);
+	if(s->data <= 0) ssignal(s->queue);
 	int_on(sr);
 }
 
