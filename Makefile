@@ -1,25 +1,25 @@
-IMAGE_DIR 		:= Image
-IMAGE 			:= $(IMAGE_DIR)/mtximage
-IMAGE_CONTENTS 	:= $(IMAGE_DIR)/Contents
-BOOT_DIR 		:= Bootloader
-KERNEL_DIR		:= OS
-USER_DIR 		:= User
+IMAGE_DIR 			:= Image
+IMAGE 				:= $(IMAGE_DIR)/mtximage
+IMAGE_CONTENTS 		:= $(IMAGE_DIR)/Contents
+BOOT_DIR 			:= Bootloader
+KERNEL_DIR			:= OS
+USER_DIR 			:= User
 
-BOOT 			:= boot
-KERNEL 			:= mtx0
-USER1 			:= u1
-USER2			:= u2
-PIPE_EXAMPLE 	:= pipe
+BOOT 				:= boot
+KERNEL 				:= mtx0
+USER1 				:= u1
+USER2				:= u2
+PIPE_EXAMPLE 		:= pipe
 
-CC				:= bcc
-AS				:= as86
-LD				:= ld86
-QEMU			:= qemu-system-i386
-RUN				:= run
+CC					:= bcc
+AS					:= as86
+LD					:= ld86
+QEMU				:= qemu-system-i386
+RUN					:= run
 
-CFLAGS			:= -ansi
-LDFLAGS			:= -d /usr/lib/bcc/libc.a
-ASFLAGS			:= 
+CFLAGS				:= -ansi
+LDFLAGS				:= -d /usr/lib/bcc/libc.a
+ASFLAGS				:= 
 
 
 # bootloader files

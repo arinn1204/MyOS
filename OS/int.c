@@ -110,6 +110,7 @@ int thandler() {
 		running->timer--;
 		uptime++;
 		kwakeup(uptime);
+		printf("%d %d\n", running->timer, running->inkmode);
 		if ( (second = (second + 1) % 60) == 0 ) {
 			if ( (minute = (minute + 1) % 60) == 0 ) {
 				if ( (hour = (hour + 1) % 24) == 0 ) {
@@ -119,9 +120,9 @@ int thandler() {
 		}
 		//make sure inside of tick if statement so it'll only happen once per second
 		displayTime(hour, minute, second);
-		//if(running->timer <= 0 && running->inkmode > 1) tswitch();
 	}
-	out_byte(0x20, 0x20);
+	if(running->timer <= 0 && running->inkmode > 1) out_byte(0x20, 0x20), tswitch();
+	else out_byte(0x20, 0x20);
 
 	//switch proc if timer == 0 and not in kmode
 	//this kernel is a single proc kernel, which is why it must be in usermode
