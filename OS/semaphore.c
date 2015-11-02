@@ -11,6 +11,8 @@
 
 int wait(PROC *queue) {
 	extern PROC *running;
+	printf("Running address: %x\n", running);
+	
 	running->status = BLOCK;
 	enqueue(&queue, running);
 	tswitch();
@@ -19,7 +21,9 @@ int wait(PROC *queue) {
 int signal(PROC *queue) {
 	PROC *p;
 	extern PROC *readyQueue;
+
 	p = dequeue(&queue);
+	printf("New Proc: %x\n", p);
 	p->status = READY;
 	enqueue(&readyQueue, p);
 	do_ps();
