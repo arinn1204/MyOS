@@ -5,6 +5,8 @@
 
 #define NSCAN	64
 #define KBLEN	64
+#define READY   1
+#define BLOCK   6
 
 
 char shift[NSCAN] = {
@@ -27,7 +29,8 @@ char unshift[NSCAN] = {
 #include "wait.h"
 #include "proc.h"
 #include "keyboard.h"
-
+#include "queue.h"
+#include "semaphore.h"
 
 typedef struct kbd {
 	char buf[KBLEN];
@@ -42,6 +45,7 @@ KBD kbd;
 int kbd_init() {
 	printf("KB Init....\n");
 	kbd.data.data = 0;
+	kbd.data.queue = 0;
 	kbd.head = kbd.tail = 0;
 }
 
@@ -68,10 +72,7 @@ int kbhandler() {
 	kbd.buf[kbd.tail++] = c;
 	kbd.tail %= KBLEN;
 
-	kbd.data.data++;
-	//need a P or a V in here
-	//what the fuck are those??
-	//was a wakeup
+	V(&kbd.data);
 
 	out:
 		out_byte(0x20, 0x20);
@@ -80,18 +81,12 @@ int kbhandler() {
 int getc() {
 	int c;
 
+	P(&kbd.data);
+
 	lock();
-
-	while(kbd.data.data <= 0) {
-		unlock();
-		//was a ksleep on data
-		//need a P or a V here. Again, wtf?
-		lock();
-	}
-
+	
 	c = kbd.buf[kbd.head++] & 0x7F;
 	kbd.head %= KBLEN;
-	kbd.data.data--;
 
 	unlock();
 	return c;

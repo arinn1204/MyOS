@@ -2,7 +2,6 @@
 
 .globl _procSize, _running
 .globl _ireturn, _lock, _unlock, _in_byte, _out_byte
-
 .globl _int80h, _tinth, _kbinth ! #EXPORT the interrupt handlers
 .globl _kcinth, _thandler, _kbhandler ! #IMPORT C interrupt handlers
 

@@ -7,13 +7,13 @@
 #define NPROC     9        
 #define SSIZE  1024                /* kstack int size */
 
-#define FREE 0
-#define READY 1
-#define RUNNING 2
-#define STOPPED 3
-#define SLEEP 4
-#define ZOMBIE 5
-
+#define FREE      0
+#define READY     1
+#define RUNNING   2
+#define STOPPED   3
+#define SLEEP     4
+#define ZOMBIE    5
+#define BLOCK     6
 /*typedef enum STATUS {FREE,
       READY,
       RUNNING,

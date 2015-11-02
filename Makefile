@@ -29,8 +29,9 @@ BOOT_OBJECTS 		:= $(patsubst %.c,%.o,$(patsubst %.s,%.asmo,$(BOOT_FILES) ) ) #.c
 
 # Kernel files
 CORE_KERNEL_FILES 	:= $(addprefix $(KERNEL_DIR)/, start.s main.c)
-KERNEL_C_FILES 		:= $(addprefix $(KERNEL_DIR)/, forkexec.c fs.c int.c io.c kernel.c keyboard.c pipe.c proc.c queue.c timer.c video.c wait.c)
-KERNEL_S_FILES		:= $(addprefix $(KERNEL_DIR)/, int.s tswitch.s reg.s io.s)
+KERNEL_C_FILES 		:= $(addprefix $(KERNEL_DIR)/, forkexec.c fs.c int.c io.c kernel.c keyboard.c pipe.c proc.c)
+KERNEL_C_FILES 		+= $(addprefix $(KERNEL_DIR)/, queue.c semaphore.c timer.c video.c wait.c)
+KERNEL_S_FILES		:= $(addprefix $(KERNEL_DIR)/, int.s io.s reg.s semaphore.s tswitch.s)
 KERNEL_OBJECTS 		:= $(patsubst %.c,%.o,$(patsubst %.s,%.asmo,$(CORE_KERNEL_FILES) ) )
 KERNEL_OBJECTS		+= $(patsubst %.c,%.o,$(KERNEL_C_FILES)) $(patsubst %.s,%.asmo,$(KERNEL_S_FILES))
 

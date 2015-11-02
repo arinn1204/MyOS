@@ -5,9 +5,5 @@ int kbd_init();
 int kbhandler();
 int getc();
 
-typedef struct semaphore {
-	int data;
-	PROC *queue;
-} SEMAPHORE;
 
 #endif

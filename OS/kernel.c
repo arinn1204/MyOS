@@ -34,7 +34,7 @@ int printName(char *name) {
       ZOMBIE
 } STATUS;
 */
-char *statuses[] = {"FREE", "READY", "RUNNING", "STOPPED", "SLEEP", "ZOMBIE", 0};
+char *statuses[] = {"FREE", "READY", "RUNNING", "STOPPED", "SLEEP", "ZOMBIE", "BLOCK", 0};
 
 int printStatus(int status) {
 	int i, max = -1;
