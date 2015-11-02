@@ -7,6 +7,7 @@
 #include "proc.h"
 #include "io.h"
 #include "semaphore.h"
+#include "queue.h"
 
 int wait(PROC *queue) {
 	extern PROC *running;
