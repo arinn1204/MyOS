@@ -1,25 +1,26 @@
-IMAGE_DIR 		:= Image
-IMAGE 			:= $(IMAGE_DIR)/mtximage
-IMAGE_CONTENTS 	:= $(IMAGE_DIR)/Contents
-BOOT_DIR 		:= Bootloader
-KERNEL_DIR		:= OS
-USER_DIR 		:= User
+IMAGE_DIR 			:= Image
+IMAGE 				:= $(IMAGE_DIR)/mtximage
+IMAGE_CONTENTS 		:= $(IMAGE_DIR)/Contents
+BOOT_DIR 			:= Bootloader
+KERNEL_DIR			:= OS
+USER_DIR 			:= User
 
-BOOT 			:= boot
-KERNEL 			:= mtx0
-USER1 			:= u1
-USER2			:= u2
-PIPE_EXAMPLE 	:= pipe
+BOOT 				:= boot
+KERNEL 				:= mtx0
+USER1 				:= u1
+USER2				:= u2
+PIPE_EXAMPLE 		:= pipe
+SLEEPER 			:= sleep
 
-CC				:= bcc
-AS				:= as86
-LD				:= ld86
-QEMU			:= qemu-system-i386
-RUN				:= run
+CC					:= bcc
+AS					:= as86
+LD					:= ld86
+QEMU				:= qemu-system-i386
+RUN					:= run
 
-CFLAGS			:= -ansi
-LDFLAGS			:= -d /usr/lib/bcc/libc.a
-ASFLAGS			:= 
+CFLAGS				:= -ansi
+LDFLAGS				:= -d /usr/lib/bcc/libc.a
+ASFLAGS				:= 
 
 
 # bootloader files
@@ -52,6 +53,11 @@ PIPE_EX_C_FILES		:= $(addprefix $(USER_DIR)/, pipe_example.c )
 PIPE_EX_OBJECTS		:= $(patsubst %.c,%.o,$(patsubst %.s,%.asmo,$(CORE_USER_FILES)))
 PIPE_EX_OBJECTS		+= $(patsubst %.c,%.o,$(PIPE_EX_C_FILES))
 
+SLEEPER_C_FILES		:= $(addprefix $(USER_DIR)/, sleeper.c )
+SLEEPER_OBJECTS		:= $(patsubst %.c,%.o,$(patsubst %.s,%.asmo,$(CORE_USER_FILES)))
+SLEEPER_OBJECTS		+= $(patsubst %.c,%.o,$(SLEEPER_C_FILES))
+
+
 
 
 
@@ -64,7 +70,7 @@ all: clear
 	sudo cp $(USER_DIR)/$(USER1) $(IMAGE_CONTENTS)/bin/$(USER1)
 	sudo cp $(USER_DIR)/$(USER2) $(IMAGE_CONTENTS)/bin/$(USER2)
 	sudo cp $(USER_DIR)/$(PIPE_EXAMPLE) $(IMAGE_CONTENTS)/bin/$(PIPE_EXAMPLE)
-
+	sudo cp $(USER_DIR)/$(SLEEPER) $(IMAGE_CONTENTS)/bin/$(SLEEPER)
 	sudo umount $(IMAGE_CONTENTS)
 	@echo ""
 	@echo Complete...
@@ -100,7 +106,7 @@ kernel: $(KERNEL_OBJECTS)
 	@echo ""
 
 
-USER: user1 user2 pipe 
+USER: user1 user2 pipe sleep
 
 
 user1: CFLAGS = -ansi -D_LAB_6_
@@ -133,6 +139,16 @@ pipe: $(PIPE_EX_OBJECTS)
 	@echo ""
 	@echo ""
 
+sleep: CFLAGS = -ansi -D_LAB_6_
+sleep: LDFLAGS = /usr/lib/bcc/libc.a
+sleep: INCLIB :=
+sleep: $(SLEEPER_OBJECTS)
+	@echo Linking sleeper together...
+	$(LD) $^ $(INCLIB) $(LDFLAGS) -o $(USER_DIR)/$(SLEEPER)
+	@echo sleeper complete
+	@echo ""
+	@echo ""
+
 
 %.asmo: %.s
 	$(AS) $(ASFLAGS) -o $(patsubst %.s,%.asmo,$<) $<
@@ -143,9 +159,10 @@ clean:
 	$(RM) $(USER1_OBJECTS)
 	$(RM) $(USER2_OBJECTS)
 	$(RM) $(PIPE_EX_OBJECTS)
+	$(RM) $(SLEEPER_OBJECTS)
 
 cleanall: clean
 	$(RM) $(BOOT_DIR)/$(BOOT) $(KERNEL_DIR)/$(KERNEL)
 	$(RM) $(USER_DIR)/$(USER1) $(USER_DIR)/$(USER2)
-	$(RM) $(RUN) $(USER_DIR)/$(PIPE_EXAMPLE)
+	$(RM) $(RUN) $(USER_DIR)/$(PIPE_EXAMPLE) $(USER_DIR)/$(SLEEPER)
 

@@ -6,13 +6,17 @@ int find_cmd(char *);
 int getpid();
 int ps();
 int chname();
-int kfork();
+int fork();
+int ufork();
+int exec();
+int uexec();
 int kswitch();
 int wait();
 int exit();
 int invalid(char *);
-int ufork();
-int uexec();
+
+int sleep(int seconds);
+int usleep();
 
 
 #endif

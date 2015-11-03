@@ -1,3 +1,4 @@
+
 #include "video.h"
 #include "file.h"
 #include "pipe.h"
@@ -40,8 +41,6 @@ void set_vdc(u16 reg, u16 val) {
 	out_byte(VDC_DATA, val & 0xFF);
 	unlock();
 }
-
-
 
 int vid_init() {
 	int i, w;
