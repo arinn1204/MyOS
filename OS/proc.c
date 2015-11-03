@@ -71,7 +71,7 @@ int scheduler() {
 		enqueue(&readyQueue, running);
 	}
 	running = dequeue(&readyQueue);
-	printf("Now running %d for 5 seconds!\n", running->pid);
+	//printf("Now running %d for 5 seconds!\n", running->pid);
 	rflag = 0;
 	running->timer = 5;
 	unlock();

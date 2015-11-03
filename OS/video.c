@@ -58,6 +58,17 @@ int vid_init() {
 	displayTime(0,0,0);
 }
 
+//clear a specified row with blanks
+void clearRow(int crow) {
+	int off;
+	int i;
+
+	off = org + 2*crow*LINE_WIDTH;
+	for(i = 0; i < LINE_WIDTH; i++) {
+		put_word(0x0700, base,  off + 2*i);
+	}
+}
+
 int scroll() {
 	int i;
 	u16 w, bytes;
@@ -143,6 +154,8 @@ int displayTime(int hour, int minute, int second) {
 	color = HGREEN;
 	column = LINE_WIDTH - 9;
 	row = SCR_LINE;
+
+	//clearRow(row);
 
 	printf( (hour < 10) ? "0%d:" : "%d:", hour);
 	printf( (minute < 10) ? "0%d:" : "%d:", minute);
