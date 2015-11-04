@@ -109,6 +109,8 @@ int kbhandler() {
 	static int fpush = 0;
 
 	extern PROC *running;
+	extern PROC *readyQueue;
+	extern PROC *freeList;
 	extern int uptime;
 
 	scode = in_byte(KEYBD);
@@ -187,15 +189,12 @@ int kbhandler() {
 			case F1: if(fpush == 0) do_ps();
 					 fpush = 1; 
 					 goto out;
-			//don't change priority of P0
-			case F2: if(fpush == 0 && running->pid != 0) chpriority(running->pid, 2);
+			case F2: if(fpush == 0) printQueue("Free List: ", freeList);
 					 fpush = 1;
 					 goto out;
-
-			case F3: if(fpush == 0 && running->pid != 0) ksleep(uptime + 10);
+			case F3: if(fpush == 0) printQueue("Ready Queue: ", readyQueue);
 					 fpush = 1;
 					 goto out;
-					 //can't exit if P0
 			case F4: if(fpush == 0 && running->pid != 0) {
 						out_byte(0x20, 0x20);	
 					 	fpush = 1;
