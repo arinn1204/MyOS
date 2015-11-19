@@ -12,6 +12,7 @@ typedef unsigned long u32;
 #include "proc.h"
 #include "io.h"
 #include "forkexec.h"
+#include "serial.h"
 
 #define AX 8
 
@@ -87,6 +88,10 @@ int kcinth() {
 		// 		END PIPE
 		//TIME BASED FUNCTIONS
 		case 40:	r = tsleep(b);				break;
+
+		//SERIAL FUNCTIONS
+		case 50:	r = sgets(b, c);			break;
+		case 51:	r = sputs(b, c);			break;
 
 		default: printf("%d is not supported currently.\n\r"); break;
 	}

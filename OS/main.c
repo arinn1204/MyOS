@@ -5,14 +5,16 @@
 #include "video.h"
 #include "int.h"
 #include "keyboard.h"
-
-int int80h(); int tinth(); int kbinth();
-
-#define TIMERINT 8
-#define KBINT 9
+#include "serial.h"
 
 
-#define SYSCALL 80
+int int80h(); int tinth(); int kbinth(); int s0inth();
+
+#define TIMERINT 	8
+#define KBINT 		9
+#define SINT 		12
+
+#define SYSCALL 	80
 
 
 int procSize = sizeof( PROC );
@@ -30,6 +32,9 @@ void setInts() {
 	//KEYBOARD
 	set_vec(KBINT, kbinth);
 	kbd_init();
+
+	set_vec(SINT, s0inth);
+	sinit();
 
 	unlock();
 }
