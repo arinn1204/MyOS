@@ -18,8 +18,10 @@ LD					:= ld86
 QEMU				:= qemu-system-i386
 RUN					:= run
 
+LIBC				:= /usr/lib64/bcc/libc.a
+
 CFLAGS				:= -ansi
-LDFLAGS				:= -d /usr/lib/bcc/libc.a
+LDFLAGS				:= -d $(LIBC)
 ASFLAGS				:= 
 
 
@@ -62,7 +64,6 @@ SLEEPER_OBJECTS		+= $(patsubst %.c,%.o,$(SLEEPER_C_FILES))
 
 
 all: boot kernel USER
-all: clear
 	@echo Copying bootloader,kernel, and user into image
 	dd if=$(BOOT_DIR)/$(BOOT) of=$(IMAGE) bs=1024 count=1 conv=notrunc
 	sudo mount -o loop $(IMAGE) $(IMAGE_CONTENTS)
@@ -91,8 +92,6 @@ boot: $(BOOT_OBJECTS)
 	@echo ""
 	@echo ""
 
-clear:
-	@clear
 
 kernel: CFLAGS = -ansi -D_LAB_6_ -D_MTXLIB_
 kernel: INCLIB := $(KERNEL_DIR)/mtxlib
@@ -110,7 +109,7 @@ USER: user1 user2 pipe sleep
 
 
 user1: CFLAGS = -ansi -D_LAB_6_
-user1: LDFLAGS = /usr/lib/bcc/libc.a
+user1: LDFLAGS = $(LIBC)
 user1: INCLIB := 
 user1: $(USER1_OBJECTS)
 	@echo Linking U1 together.....
@@ -120,7 +119,7 @@ user1: $(USER1_OBJECTS)
 	@echo ""
 
 user2: CFLAGS = -ansi -D_LAB_6_
-user2: LDFLAGS = /usr/lib/bcc/libc.a
+user2: LDFLAGS = $(LIBC)
 user2: INCLIB := 
 user2: $(USER2_OBJECTS)
 	@echo Linking U2 together.....
@@ -130,7 +129,7 @@ user2: $(USER2_OBJECTS)
 	@echo ""
 
 pipe: CFLAGS = -ansi -D_LAB_6_
-pipe: LDFLAGS = /usr/lib/bcc/libc.a
+pipe: LDFLAGS = $(LIBC)
 pipe: INCLIB :=
 pipe: $(PIPE_EX_OBJECTS)
 	@echo Linking PIPE_EXAMPLE together...
@@ -140,7 +139,7 @@ pipe: $(PIPE_EX_OBJECTS)
 	@echo ""
 
 sleep: CFLAGS = -ansi -D_LAB_6_
-sleep: LDFLAGS = /usr/lib/bcc/libc.a
+sleep: LDFLAGS = $(LIBC)
 sleep: INCLIB :=
 sleep: $(SLEEPER_OBJECTS)
 	@echo Linking sleeper together...
