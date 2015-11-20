@@ -11,6 +11,7 @@ USER1 				:= u1
 USER2				:= u2
 PIPE_EXAMPLE 		:= pipe
 SLEEPER 			:= sleep
+SERIAL				:= serial
 
 CC					:= bcc
 AS					:= as86
@@ -40,7 +41,7 @@ KERNEL_OBJECTS		+= $(patsubst %.c,%.o,$(KERNEL_C_FILES)) $(patsubst %.s,%.asmo,$
 
 
 #User files
-CORE_USER_FILES		:= $(addprefix $(USER_DIR)/, userstart.s crt0.c usercode.c pipe.c print.c)
+CORE_USER_FILES		:= $(addprefix $(USER_DIR)/, userstart.s crt0.c usercode.c serial.c pipe.c print.c)
 
 
 USER1_C_FILES		:= $(addprefix $(USER_DIR)/, user1.c)
@@ -59,6 +60,9 @@ SLEEPER_C_FILES		:= $(addprefix $(USER_DIR)/, sleeper.c )
 SLEEPER_OBJECTS		:= $(patsubst %.c,%.o,$(patsubst %.s,%.asmo,$(CORE_USER_FILES)))
 SLEEPER_OBJECTS		+= $(patsubst %.c,%.o,$(SLEEPER_C_FILES))
 
+SERIAL_C_FILES		:= $(addprefix $(USER_DIR)/, serial_example.c )
+SERIAL_OBJECTS		:= $(patsubst %.c,%.o,$(patsubst %.s,%.asmo,$(CORE_USER_FILES)))
+SERIAL_OBJECTS		+= $(patsubst %.c,%.o,$(SERIAL_C_FILES))
 
 
 
@@ -72,13 +76,14 @@ all: boot kernel USER
 	sudo cp $(USER_DIR)/$(USER2) $(IMAGE_CONTENTS)/bin/$(USER2)
 	sudo cp $(USER_DIR)/$(PIPE_EXAMPLE) $(IMAGE_CONTENTS)/bin/$(PIPE_EXAMPLE)
 	sudo cp $(USER_DIR)/$(SLEEPER) $(IMAGE_CONTENTS)/bin/$(SLEEPER)
+	sudo cp $(USER_DIR)/$(SERIAL) $(IMAGE_CONTENTS)/bin/$(SERIAL)
 	sudo umount $(IMAGE_CONTENTS)
 	@echo ""
 	@echo Complete...
 	@echo Creating run executable
 	@echo "#/bin/bash" > ./$(RUN)
 	@echo clear >> ./$(RUN)
-	@echo "$(QEMU) -fda $(IMAGE) -no-fd-bootchk" >> ./$(RUN)
+	@echo "$(QEMU) -fda $(IMAGE) -no-fd-bootchk -serial mon:stdio -serial /dev/pts/0" >> ./$(RUN)
 	@chmod 755 ./$(RUN)
 
 
@@ -93,7 +98,7 @@ boot: $(BOOT_OBJECTS)
 	@echo ""
 
 
-kernel: CFLAGS = -ansi -D_LAB_6_ -D_MTXLIB_
+kernel: CFLAGS = -ansi -D_LAB_8_ -D_MTXLIB_
 kernel: INCLIB := $(KERNEL_DIR)/mtxlib
 kernel: GETSIZE := stat $(KERNEL_DIR)/$(KERNEL) | grep Size | awk '{print $$2}'
 kernel: $(KERNEL_OBJECTS)
@@ -105,10 +110,10 @@ kernel: $(KERNEL_OBJECTS)
 	@echo ""
 
 
-USER: user1 user2 pipe sleep
+USER: user1 user2 pipe sleep serial
 
 
-user1: CFLAGS = -ansi -D_LAB_6_
+user1: CFLAGS = -ansi -D_LAB_8_
 user1: LDFLAGS = $(LIBC)
 user1: INCLIB := 
 user1: $(USER1_OBJECTS)
@@ -118,7 +123,7 @@ user1: $(USER1_OBJECTS)
 	@echo ""
 	@echo ""
 
-user2: CFLAGS = -ansi -D_LAB_6_
+user2: CFLAGS = -ansi -D_LAB_8_
 user2: LDFLAGS = $(LIBC)
 user2: INCLIB := 
 user2: $(USER2_OBJECTS)
@@ -128,7 +133,7 @@ user2: $(USER2_OBJECTS)
 	@echo ""
 	@echo ""
 
-pipe: CFLAGS = -ansi -D_LAB_6_
+pipe: CFLAGS = -ansi -D_LAB_8_
 pipe: LDFLAGS = $(LIBC)
 pipe: INCLIB :=
 pipe: $(PIPE_EX_OBJECTS)
@@ -138,7 +143,7 @@ pipe: $(PIPE_EX_OBJECTS)
 	@echo ""
 	@echo ""
 
-sleep: CFLAGS = -ansi -D_LAB_6_
+sleep: CFLAGS = -ansi -D_LAB_8_
 sleep: LDFLAGS = $(LIBC)
 sleep: INCLIB :=
 sleep: $(SLEEPER_OBJECTS)
@@ -148,6 +153,15 @@ sleep: $(SLEEPER_OBJECTS)
 	@echo ""
 	@echo ""
 
+serial: CFLAGS = -ansi -D_LAB_8_
+serial: LDFLAGS = $(LIBC)
+serial: INCLIB :=
+serial: $(SERIAL_OBJECTS)
+	@echo Linking serial example together...
+	$(LD) $^ $(INCLIB) $(LDFLAGS) -o $(USER_DIR)/$(SERIAL)
+	@echo serial complete
+	@echo ""
+	@echo ""
 
 %.asmo: %.s
 	$(AS) $(ASFLAGS) -o $(patsubst %.s,%.asmo,$<) $<

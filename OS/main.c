@@ -8,11 +8,12 @@
 #include "serial.h"
 
 
-int int80h(); int tinth(); int kbinth(); int s0inth();
+int int80h(); int tinth(); int kbinth(); int s0inth(); int s1inth();
 
 #define TIMERINT 	8
 #define KBINT 		9
-#define SINT 		12
+#define S0INT 		12
+#define S1INT		11
 
 #define SYSCALL 	80
 
@@ -33,7 +34,8 @@ void setInts() {
 	set_vec(KBINT, kbinth);
 	kbd_init();
 
-	set_vec(SINT, s0inth);
+	set_vec(S0INT, s0inth);
+	set_vec(S1INT, s1inth);
 	sinit();
 
 	unlock();

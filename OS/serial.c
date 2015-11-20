@@ -1,19 +1,7 @@
-
 #include "file.h"
 #include "pipe.h"
 #include "proc.h"
 #include "semaphore.h"
-
-
-/**************** CONSTANTS ***********************/
-#define INT_CTL 		0x20
-#define ENABLE 			0x20
-
-#define NULLCHAR 		0
-#define BEEP 			7
-#define BACKSPACE 		8
-#define ESC 			27
-#define SPACE 			32
 
 #define BUFLEN 			64
 #define LSIZE 			64
@@ -55,9 +43,7 @@ struct stty {
 
 	//IO port base
 	int port;
-}; 
-struct stty stty[NR_STTY];
-
+} stty[NR_STTY];
 
 int bputc(int port, int c) {
 	while( ( in_byte(port + LSR) & 0x20 ) == 0 );
@@ -79,20 +65,18 @@ int sinit() {
 	int i;
 	struct stty *t;
 	char *q;
-	char *str = "\n\rSerial Port Ready\n\r\007";
+	char *str = "\n\rSerial Port Ready\n\r";
 
 	for(i = 0; i < NR_STTY; i++) {
 		q = str;
 		printf("sinit port=#%d\n", i);
-
 		t = &stty[i];
 		//initialize the structures pointers
 		if ( ! i )  t->port = 0x3F8;
 		else 		t->port = 0x2F8;
 
 		t->inchars.queue = 0; 	t->inchars.data = 0;
-		t->outchars.queue = 0; 	t->outchars.data = 0;
-
+		t->outchars.queue = 0; 	t->outchars.data = BUFLEN;
 		t->inhead 	= t->intail  = 0;
 		t->outhead 	= t->outtail = 0;
 
@@ -109,26 +93,25 @@ int sinit() {
 		t->eof = 	(char)004;  // CTRL+D
 
 		lock();
-
 			out_byte(t->port + IER, 0x00);  //disable serial interruprs
 			out_byte(t->port + LCR, 0x80);  //use 3f9,3f8 as divisor
 			out_byte(t->port + DIVH, 0x00); 
-			out_byte(t->port + DIVL, 0x0c); //divisor 12 == 9600 baud
+			out_byte(t->port + DIVL, 12); //divisor 12 == 9600 baud
 
 			//term 9600 /dev/ttyS0 8 bits/char no parity
 			out_byte(t->port + LCR, 0x03);
 
-			out_byte(t->port + MCR, 0x08);
+			out_byte(t->port + MCR, 0x0B);
 			out_byte(t->port + IER, 0x01);
 
 		unlock();
-
 		enable_irq(4-i);
 
 		while(*q) {
 			bputc(t->port, *q);
 			q++;
 		}
+
 	}
 }
 
