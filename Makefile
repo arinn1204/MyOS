@@ -62,6 +62,8 @@ SLEEPER_OBJECTS		:= $(patsubst %.c,%.o,$(patsubst %.s,%.asmo,$(CORE_USER_FILES))
 SLEEPER_OBJECTS		+= $(patsubst %.c,%.o,$(SLEEPER_C_FILES))
 
 all: boot kernel USER
+
+install: all
 	@echo Copying bootloader,kernel, and user into image
 	dd if=$(BOOT_DIR)/$(BOOT) of=$(IMAGE) bs=1024 count=1 conv=notrunc
 	sudo mount -o loop $(IMAGE) $(IMAGE_CONTENTS)
@@ -72,6 +74,8 @@ all: boot kernel USER
 	sudo cp $(USER_DIR)/$(SLEEPER) $(IMAGE_CONTENTS)/bin/$(SLEEPER)
 	sudo cp $(USER_DIR)/$(SERIAL) $(IMAGE_CONTENTS)/bin/$(SERIAL)
 	sudo umount $(IMAGE_CONTENTS)
+
+run: install
 	@echo ""
 	@echo Complete...
 	@echo Creating run executable
@@ -79,6 +83,7 @@ all: boot kernel USER
 	@echo clear >> ./$(RUN)
 	@echo "$(QEMU) -fda $(IMAGE) -no-fd-bootchk -serial /dev/pts/0 -serial /dev/pts/1" >> ./$(RUN)
 	@chmod 755 ./$(RUN)
+	./$(RUN)
 
 
 
