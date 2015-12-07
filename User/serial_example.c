@@ -14,8 +14,8 @@ int main(int argc, char *argv[]) {
 	//child string/buffer
 	char *chd = "I am sending it back";
 	char child[64];
-
-	if( fork() ) { //parent
+	int p = fork();
+	if( p ) { //parent
 		ppid = getppid();
 		printf("I am %d and my parent is %d\n", pid, ppid);
 		printf("Sending \"%s\" on port %d\n", par, port);

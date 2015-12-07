@@ -2,6 +2,7 @@
 #include "pipe.h"
 #include "proc.h"
 #include "semaphore.h"
+#include "io.h"
 
 #define BUFLEN 			64
 #define LSIZE 			64
@@ -21,7 +22,6 @@
 
 /**** The serial terminal data structure ****/
 
-
 struct stty {
 	//input
 	char inbuf[BUFLEN];
@@ -32,6 +32,10 @@ struct stty {
 	char outbuf[BUFLEN];
 	int outhead, outtail;
 	struct semaphore outchars;
+
+	//echo buffer
+	char ebuf[BUFLEN];
+	int ecount, ehead, etail;
 
 	int tx_on;
 
@@ -45,8 +49,14 @@ struct stty {
 	int port;
 } stty[NR_STTY];
 
+//SPECIAL CHARACTERS
+#define BEEP 0x07
+#define BACKSPACE 0x7F
+
+
+
 int bputc(int port, int c) {
-	while( ( in_byte(port + LSR) & 0x20 ) == 0 );
+	//while( ( in_byte(port + LSR) & 0x20 ) == 0 );
 	out_byte(port + DATA, c);
 }
 
@@ -71,7 +81,7 @@ int sinit() {
 		q = str;
 		printf("sinit port=#%d\n", i);
 		t = &stty[i];
-		//initialize the structures pointers
+		//initialize the structures port pointers
 		if ( ! i )  t->port = 0x3F8;
 		else 		t->port = 0x2F8;
 
@@ -79,6 +89,9 @@ int sinit() {
 		t->outchars.queue = 0; 	t->outchars.data = BUFLEN;
 		t->inhead 	= t->intail  = 0;
 		t->outhead 	= t->outtail = 0;
+
+		//echo shit
+		t->ecount = t->ehead = t->etail = 0;
 
 		t->tx_on = 0;
 
@@ -93,6 +106,7 @@ int sinit() {
 		t->eof = 	(char)004;  // CTRL+D
 
 		lock();
+			out_byte(t->port + MCR, 0x09);
 			out_byte(t->port + IER, 0x00);  //disable serial interruprs
 			out_byte(t->port + LCR, 0x80);  //use 3f9,3f8 as divisor
 			out_byte(t->port + DIVH, 0x00); 
@@ -172,18 +186,42 @@ int disable_tx(struct stty *t) {
 	unlock();
 }
 
+int secho(struct stty *t, int c) {
+
+	t->ebuf[t->etail++] = c;
+	t->etail %= BUFLEN;
+	t->ecount++;
+
+	if(!t->tx_on) enable_tx(t); //tx will flush the buffer
+
+}
+
 int do_rx(struct stty *t) {
 	int c;
 	c = in_byte(t->port) & 0x7F;
 
-	printf("port %x interrupt:c=%c ", t->port, c);
+	//printf("%c available on %x\n", c, t->port);
+	if(c == BACKSPACE) {
+		secho(t, '\b'), secho(t, ' '), secho(t, '\b');
+		if(t->inchars.data > 0) {
+			t->inchars.data--;
+			if(t->intail == 0) t->intail = BUFLEN - 1;
+			else t->intail--;
+		}
+		return;
+	}
 
-	t->intail = (t->intail + 1) % BUFLEN;
-
-	t->inbuf[t->intail] = c;
-	
-	t->inchars.data++;
-
+	if(t->inchars.data >= BUFLEN) {
+		//BEEP = 0x07
+		secho(t, BEEP);
+		V(&t->inchars);
+		return 0;
+	}
+	if (c == '\r') c = '\n'; //change return to newline
+	t->inbuf[t->intail++] = c;
+	t->intail %= BUFLEN;
+	secho(t, c);
+	//printf("Buf: %s, tail: %d data: %d\n", t->inbuf, t->intail, t->inchars.data);
 	V(&t->inchars);
 }
 
@@ -193,11 +231,9 @@ int sgetc(struct stty *t) {
 
 	lock();
 
-	t->inhead = (t->inhead + 1) % BUFLEN;
-
-	c = t->inbuf[t->inhead];
-	t->inchars.data--;
-
+	c = t->inbuf[t->inhead++];
+	//printf("Received from buffer: %c\n", c);
+	t->inhead %= BUFLEN;
 	unlock();
 
 	return c;
@@ -218,7 +254,6 @@ int sgets(int port, int strADDR) {
 	struct stty *t;
 	extern PROC *running;
 
-
 	seg = (running->pid + 1) * 0x1000;
 
 	if (port < 0 || port > NR_STTY)	
@@ -237,49 +272,50 @@ int sgets(int port, int strADDR) {
 
 }
 
-
 int do_tx(struct stty *t) {
 	int c;
-	//printf("TX interrupt\n");
-
-	if(t->outchars.data == BUFLEN) {
+	if(t->ecount == 0 && t->outchars.data == BUFLEN) {
 		disable_tx(t);
 		return 1; //1 for nothing done
 	}
-	
-	t->outhead = ( t->outhead + 1) % BUFLEN;
-	c = t->outbuf[t->outhead];
-	t->outchars.data--;
 
-	out_byte(t->port, c);
-	V(&t->outchars);
+	else if(t->ecount) {
+		c = t->ebuf[t->ehead++];
+		t->ehead %= BUFLEN;
+		t->ecount--;
+		out_byte(t->port, c);
+		return 0;
+	}
+	else if ( t->outchars.data < BUFLEN ) {
+		c = t->outbuf[t->outhead++];
+		t->outhead %= BUFLEN;
+		
+		//printf("TX Interrupt on %c\n", c);
+
+		out_byte(t->port, c);
+		if (c == '\r') out_byte(t->port, '\n');
+		V(&t->outchars);
+	}
 	return 0; //0 for success
 
 }
 
 int sputc(struct stty *t, int c) {
-
-	if(t->outchars.data == BUFLEN)
-		P(&t->outchars);
-
+	//printf("I'm here!\n");
+	P(&t->outchars);
 	lock();
-	
-	t->outtail = (t->outtail + 1 ) % BUFLEN;
-	t->outbuf[t->outtail] = c;
-	
-	t->outchars.data++;
-	
-	if(t->tx_on == 0)
+	t->outbuf[t->outtail++] = c;
+	t->outtail %= BUFLEN;
+	if(! t->tx_on)
 		enable_tx(t);
-
 	unlock();
 }
 
 int sputline(struct stty *t, char *line) {
-	int ret = strlen(line);
-	while(*line) {
-		sputc(t, *line);
-		line++;
+	int ret = strlen(line), i=0;
+	while(i < ret) {
+		sputc(t, line[i]);
+		i++;
 	}
 
 	return ret;
@@ -295,15 +331,24 @@ int sputs(int port, int strADDR) {
 
 	extern PROC *running;
 
-
-
 	seg = (running->pid + 1)*0x1000;
 	t = &stty[port];
 	for(i = 0; get_word(seg, strADDR + i) != 0 && i < BUFLEN; i++) {
 		buf[i] = get_word(seg, strADDR + i);
 	}
-
+	printf("\n\n%s\n\n", buf);
 	ret = sputline(t, buf);
 
 	return ret;
+}
+
+int usgetc(int port) {
+	struct stty *t = &stty[port];
+	return sgetc(t);
+}
+
+
+int usputc(int port, int c) {
+	struct stty *t = &stty[port];
+	return sputc(t, c);
 }

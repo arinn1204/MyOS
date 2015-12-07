@@ -33,8 +33,9 @@ BOOT_OBJECTS 		:= $(patsubst %.c,%.o,$(patsubst %.s,%.asmo,$(BOOT_FILES) ) ) #.c
 
 # Kernel files
 CORE_KERNEL_FILES 	:= $(addprefix $(KERNEL_DIR)/, start.s main.c)
-KERNEL_C_FILES 		:= $(addprefix $(KERNEL_DIR)/, forkexec.c fs.c int.c io.c kernel.c keyboard.c pipe.c proc.c)
-KERNEL_C_FILES 		+= $(addprefix $(KERNEL_DIR)/, queue.c semaphore.c serial.c timer.c video.c wait.c)
+KERNEL_C_FILES 		:= $(addprefix $(KERNEL_DIR)/, forkexec.c fs.c int.c io.c kernel.c pipe.c proc.c)
+KERNEL_C_FILES 		+= $(addprefix $(KERNEL_DIR)/, queue.c semaphore.c serial.c timer.c wait.c)
+KERNEL_C_FILES		+= $(addprefix $(KERNEL_DIR)/, keyboard.c video.c)
 KERNEL_S_FILES		:= $(addprefix $(KERNEL_DIR)/, int.s io.s reg.s semaphore.s tswitch.s)
 KERNEL_OBJECTS 		:= $(patsubst %.c,%.o,$(patsubst %.s,%.asmo,$(CORE_KERNEL_FILES) ) )
 KERNEL_OBJECTS		+= $(patsubst %.c,%.o,$(KERNEL_C_FILES)) $(patsubst %.s,%.asmo,$(KERNEL_S_FILES))
@@ -60,13 +61,6 @@ SLEEPER_C_FILES		:= $(addprefix $(USER_DIR)/, sleeper.c )
 SLEEPER_OBJECTS		:= $(patsubst %.c,%.o,$(patsubst %.s,%.asmo,$(CORE_USER_FILES)))
 SLEEPER_OBJECTS		+= $(patsubst %.c,%.o,$(SLEEPER_C_FILES))
 
-SERIAL_C_FILES		:= $(addprefix $(USER_DIR)/, serial_example.c )
-SERIAL_OBJECTS		:= $(patsubst %.c,%.o,$(patsubst %.s,%.asmo,$(CORE_USER_FILES)))
-SERIAL_OBJECTS		+= $(patsubst %.c,%.o,$(SERIAL_C_FILES))
-
-
-
-
 all: boot kernel USER
 	@echo Copying bootloader,kernel, and user into image
 	dd if=$(BOOT_DIR)/$(BOOT) of=$(IMAGE) bs=1024 count=1 conv=notrunc
@@ -83,7 +77,7 @@ all: boot kernel USER
 	@echo Creating run executable
 	@echo "#/bin/bash" > ./$(RUN)
 	@echo clear >> ./$(RUN)
-	@echo "$(QEMU) -fda $(IMAGE) -no-fd-bootchk -serial mon:stdio -serial /dev/pts/0" >> ./$(RUN)
+	@echo "$(QEMU) -fda $(IMAGE) -no-fd-bootchk -serial /dev/pts/0 -serial /dev/pts/1" >> ./$(RUN)
 	@chmod 755 ./$(RUN)
 
 
@@ -173,9 +167,10 @@ clean:
 	$(RM) $(USER2_OBJECTS)
 	$(RM) $(PIPE_EX_OBJECTS)
 	$(RM) $(SLEEPER_OBJECTS)
+	$(RM) $(SERIAL_OBJECTS)
 
 cleanall: clean
 	$(RM) $(BOOT_DIR)/$(BOOT) $(KERNEL_DIR)/$(KERNEL)
 	$(RM) $(USER_DIR)/$(USER1) $(USER_DIR)/$(USER2)
-	$(RM) $(RUN) $(USER_DIR)/$(PIPE_EXAMPLE) $(USER_DIR)/$(SLEEPER)
+	$(RM) $(RUN) $(USER_DIR)/$(PIPE_EXAMPLE) $(USER_DIR)/$(SLEEPER) $(USER_DIR)/$(SERIAL)
 

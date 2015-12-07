@@ -1,14 +1,35 @@
 #include "usercode.h"
 #include "print.h"
+#include "serial.h"
 
-char *cmd[]={"getpid", "ps", "chname", "switch", "wait", "fork", "exec", "exit", "pipe", "pfd", "close", "read", "write", "sleep", 0};
+char *cmd[]={"getpid", "ps", "chname", "switch", "wait", "fork", "exec", "exit", "pipe", "pfd", "close", "read", "write", "sleep", "in", "out", 0};
 
 int show_menu()
 {
    printf("***************** Menu ************************\n");
    printf("*  ps  chname  switch  wait  fork  exec  exit *\n");
-   printf("*  pipe   pfd   close   read   write   sleep  *\n");
+   printf("*  pipe   pfd   close   read   write   sleep  in out*\n");
    printf("***********************************************\n");
+}
+
+int in() {
+	int c;
+	c = sgetc(0);
+	while( c != 0 && c != 'q') {
+		putc(c);
+		if(c == '\n') putc('\r');
+		c = sgetc(0);
+	}
+}
+
+int out() {
+	int c;
+	while( (c = getc()) != 'q') {
+		putc(c);
+		if(c == '\r') putc('\n');
+		//printf("\nSending: %c\n", c);
+		sputc(1, c);
+	}
 }
 
 int find_cmd(char *name)

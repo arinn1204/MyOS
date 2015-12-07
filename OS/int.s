@@ -2,10 +2,10 @@
 
 .globl _procSize, _running
 .globl _ireturn, _lock, _unlock, _in_byte, _out_byte
-.globl _int80h, _tinth, _s0inth, _s1inth, _kbinth ! #EXPORT the interrupt handlers
-.globl _kcinth, _thandler, _kbhandler ! #IMPORT C interrupt handlers
+.globl _int80h, _tinth, _s0inth, _s1inth ! #EXPORT the interrupt handlers
+.globl _kcinth, _thandler ! #IMPORT C interrupt handlers
 .globl _s0handler, _s1handler ! #serial handlers
-
+.globl _kbhandler, _kbinth
 
 
 USS = 4

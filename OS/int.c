@@ -92,6 +92,8 @@ int kcinth() {
 		//SERIAL FUNCTIONS
 		case 50:	r = sgets(b, c);			break;
 		case 51:	r = sputs(b, c);			break;
+		case 52:	r = usgetc(b);				break;
+		case 53:	r = usputc(b,c);			break;
 
 		default: printf("%d is not supported currently.\n\r"); break;
 	}

@@ -49,6 +49,8 @@ int main(int argc, char *argv[]) {
 			case 11:	uread();	break;
 			case 12:	uwrite();	break;
 			case 13:	usleep();	break;
+			case 14:	in();		break;
+			case 15:	out();		break;
 			default:invalid(name);break;
 		}
 	}
