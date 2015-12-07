@@ -72,7 +72,6 @@ install: all
 	sudo cp $(USER_DIR)/$(USER2) $(IMAGE_CONTENTS)/bin/$(USER2)
 	sudo cp $(USER_DIR)/$(PIPE_EXAMPLE) $(IMAGE_CONTENTS)/bin/$(PIPE_EXAMPLE)
 	sudo cp $(USER_DIR)/$(SLEEPER) $(IMAGE_CONTENTS)/bin/$(SLEEPER)
-	sudo cp $(USER_DIR)/$(SERIAL) $(IMAGE_CONTENTS)/bin/$(SERIAL)
 	sudo umount $(IMAGE_CONTENTS)
 
 run: install
@@ -106,10 +105,9 @@ kernel: $(KERNEL_OBJECTS)
 	@echo Kernel complete
 	@printf "KERNEL Image is (in bytes): " && $(GETSIZE)
 	@echo ""
-	@echo ""
 
 
-USER: user1 user2 pipe sleep serial
+USER: user1 user2 pipe sleep
 
 
 user1: CFLAGS = -ansi -D_LAB_8_
@@ -149,16 +147,6 @@ sleep: $(SLEEPER_OBJECTS)
 	@echo Linking sleeper together...
 	$(LD) $^ $(INCLIB) $(LDFLAGS) -o $(USER_DIR)/$(SLEEPER)
 	@echo sleeper complete
-	@echo ""
-	@echo ""
-
-serial: CFLAGS = -ansi -D_LAB_8_
-serial: LDFLAGS = $(LIBC)
-serial: INCLIB :=
-serial: $(SERIAL_OBJECTS)
-	@echo Linking serial example together...
-	$(LD) $^ $(INCLIB) $(LDFLAGS) -o $(USER_DIR)/$(SERIAL)
-	@echo serial complete
 	@echo ""
 	@echo ""
 
