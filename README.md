@@ -1,0 +1,1 @@
+This is my MTX Operating system that was developed and designed for CPTS 460 at Washington State University. This is an ongoing project and currently only includes support for static memory creation and I have not included support for getline by the different processes, it is still currently character by character
